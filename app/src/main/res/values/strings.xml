@@ -1,0 +1,42 @@
+<resources>
+    <string name="app_name">Music App</string>
+    <string name="nav_songs">Song List</string>
+    <string name="nav_playlists">Playlists</string>
+    <string name="navigation_drawer_open">Open navigation</string>
+    <string name="navigation_drawer_close">Close navigation</string>
+    <string name="nav_player">Music player</string>
+    <string name="nav_chat">Chat</string>
+    <string name="copyright">App created by VicentMY</string>
+    <string name="menu_music_group">Music</string>
+    <string name="menu_miscellaneous_group">Miscellaneous</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="login_title">LOGIN</string>
+    <string name="email_field">Email</string>
+    <string name="passwd_field">Password</string>
+    <string name="btn_login">LOGIN</string>
+    <string name="btn_create_account">CREATE AN ACCOUNT</string>
+    <string name="register_title">REGISTER ACCOUNT</string>
+    <string name="passwd_confirm">Password confirmation</string>
+    <string name="btn_register">REGISTER</string>
+    <string name="btn_back_login">BACK TO LOGIN</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="nav_logout">Logout</string>
+    <string name="nav_settings">App preferences</string>
+    <string name="dialog_message">Do you want to exit the application?</string>
+    <string name="dialog_confirm">Yes</string>
+    <string name="dialog_cancel">No</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+</resources>

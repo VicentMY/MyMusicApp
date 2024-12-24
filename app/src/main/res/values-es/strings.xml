@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Music App</string>
+    <string name="nav_songs">Canciones</string>
+    <string name="nav_playlists">Playlists</string>
+    <string name="navigation_drawer_open">Abrir navegación</string>
+    <string name="navigation_drawer_close">Cerrar navegación</string>
+    <string name="nav_player">Reproductor</string>
+    <string name="nav_chat">Chat</string>
+    <string name="copyright">App creada por VicentMY</string>
+    <string name="menu_music_group">Música</string>
+    <string name="menu_miscellaneous_group">Varios</string>
+    <string name="login_title">INICIO DE SESIÓN</string>
+    <string name="email_field">Correo</string>
+    <string name="passwd_field">Contraseña</string>
+    <string name="btn_login">ENTRAR</string>
+    <string name="btn_create_account">CREAR UNA CUENTA</string>
+    <string name="register_title">REGISTRAR CUENTA</string>
+    <string name="passwd_confirm">Confirmar contraseña</string>
+    <string name="btn_register">REGISTRAR</string>
+    <string name="btn_back_login">VOLVER AL LOGIN</string>
+    <string name="nav_logout">Cerrar sesión</string>
+    <string name="nav_settings">Preferencias de la app</string>
+    <string name="dialog_message">¿Quieres salir de la aplicación?</string>
+    <string name="dialog_confirm">Si</string>
+    <string name="dialog_cancel">No</string>
+</resources>
