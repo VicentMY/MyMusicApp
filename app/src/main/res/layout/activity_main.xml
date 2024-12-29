@@ -29,6 +29,7 @@
 
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/mainContView"
+            android:name="es.vmy.musicapp.fragments.SongsFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"

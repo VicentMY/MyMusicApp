@@ -24,4 +24,10 @@
     <string name="dialog_message">¿Quieres salir de la aplicación?</string>
     <string name="dialog_confirm">Si</string>
     <string name="dialog_cancel">No</string>
+    <string name="username_title">Nombre de usuario</string>
+    <string name="remember_login_title">Recordar Inicio de sesión</string>
+    <string name="chat_header">Chat</string>
+    <string name="cache_header">Caché</string>
+    <string name="cache_storage_title">Activar modo sin conexión</string>
+    <string name="chat_color">Color de fondo de mensajes (en hex)</string>
 </resources>
