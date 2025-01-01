@@ -30,4 +30,8 @@
     <string name="cache_header">Caché</string>
     <string name="cache_storage_title">Activar modo sin conexión</string>
     <string name="chat_color">Color de fondo de mensajes (en hex)</string>
+    <string name="perm_denied_msg">Tienes que permitir el acceso de Música y Audio para poder usar la app</string>
+    <string name="unknown_artist">Artista desconocido</string>
+    <string name="already_first_msg">No hay pista anterior</string>
+    <string name="already_last_msg">No hay pista siguiente</string>
 </resources>

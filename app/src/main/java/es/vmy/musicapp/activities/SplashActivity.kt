@@ -2,17 +2,19 @@ package es.vmy.musicapp.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import es.vmy.musicapp.classes.Song
+import es.vmy.musicapp.R
 import es.vmy.musicapp.databinding.ActivitySplashBinding
+import es.vmy.musicapp.utils.PREFERENCES_FILE
+import es.vmy.musicapp.utils.REMEMBER_LOGIN_KEY
 import java.util.Timer
 import kotlin.concurrent.schedule
 
@@ -28,34 +30,16 @@ class SplashActivity : AppCompatActivity() {
 
         binding.progressBar.visibility = View.VISIBLE
         checkStoragePermission()
-
-
-//        Timer().schedule(3000){
-//            val prefs = getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-//            val autoLogin = prefs.getBoolean("remember_login", false)
-
-//            if (autoLogin) {
-//                val intent = Intent(this@SplashActivity, MainActivity::class.java)
-//                startActivity(intent)
-//                finish()
-//            } else {
-//                val intent = Intent(this@SplashActivity, LoginActivity::class.java)
-//                startActivity(intent)
-//                finish()
-//            }
-//        }
     }
     private fun checkStoragePermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Permission granted!", Toast.LENGTH_SHORT).show()
-            showMainActivity()
+            showNextActivity()
         } else {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.READ_MEDIA_AUDIO),
                 PERMISSION_REQUEST_CODE
             )
-            Toast.makeText(this, "Request permission!", Toast.LENGTH_SHORT).show()
         }
     }
     override fun onRequestPermissionsResult(
@@ -65,10 +49,10 @@ class SplashActivity : AppCompatActivity() {
     ) {
         if (requestCode == PERMISSION_REQUEST_CODE && grantResults.isNotEmpty()) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showMainActivity()
+                showNextActivity()
             } else {
-                Toast.makeText(this, "Permission denied!", Toast.LENGTH_SHORT).show()
-                Timer().schedule(1000) {
+                Toast.makeText(this, getString(R.string.perm_denied_msg), Toast.LENGTH_LONG).show()
+                Timer().schedule(2000) {
                     finish()
                 }
             }
@@ -77,11 +61,24 @@ class SplashActivity : AppCompatActivity() {
         }
     }
 
-    private fun showMainActivity() {
+    private fun showNextActivity() {
         binding.progressBar.visibility = View.GONE
-        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+
+        val prefs = getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
+        val autoLogin = prefs.getBoolean(REMEMBER_LOGIN_KEY, false)
+
+        val activity: Intent
+
+        activity = if (autoLogin) {
+            Intent(this@SplashActivity, MainActivity::class.java)
+        } else {
+            Intent(this@SplashActivity, LoginActivity::class.java)
+        }
+
+        startActivity(activity)
         finish()
     }
+
     companion object {
         private const val PERMISSION_REQUEST_CODE = 10002
     }

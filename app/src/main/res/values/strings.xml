@@ -36,4 +36,8 @@
     <string name="cache_header">Cache</string>
     <string name="cache_storage_title">Enable offline mode</string>
     <string name="chat_color">Chat background color (in hex)</string>
+    <string name="perm_denied_msg">You must give Audio and Music Access permissions to use the app</string>
+    <string name="unknown_artist">Unknown artist</string>
+    <string name="already_first_msg">There is no previous track</string>
+    <string name="already_last_msg">There is no next track</string>
 </resources>

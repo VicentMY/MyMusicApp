@@ -8,11 +8,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.TextView
-import android.widget.Toast
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import es.vmy.musicapp.R
+import es.vmy.musicapp.activities.MainActivity
 import es.vmy.musicapp.databinding.FragmentPlayerBinding
 import es.vmy.musicapp.utils.LISTENER_EX_MSG
 
@@ -20,7 +18,18 @@ class PlayerFragment : Fragment(), View.OnClickListener {
 
     private var _binding: FragmentPlayerBinding? = null
     private val binding get() = _binding!!
+
     private var mListener: PlayerFragmentListener? = null
+
+    private lateinit var mainActivity: MainActivity
+    private lateinit var music: MediaPlayer
+
+    fun updateSeekBarAndCo(progress: Int, currentTime: String, totalTime: String) {
+        binding.seekBar.progress = progress
+        binding.tvCurrentTime.text = currentTime
+        binding.tvTotalTime.text = totalTime
+    }
+
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -45,6 +54,21 @@ class PlayerFragment : Fragment(), View.OnClickListener {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        mainActivity = activity as MainActivity
+        music = mainActivity.getMusic()
+
+        updateFragment()
+
+        if (music.isPlaying) {
+            binding.btnPlay.setImageIcon(Icon.createWithResource(requireContext(), R.drawable.ic_action_pause))
+        } else {
+            binding.btnPlay.setImageIcon(Icon.createWithResource(requireContext(), R.drawable.ic_action_play))
+        }
+
+    }
+
     override fun onDetach() {
         super.onDetach()
         mListener = null
@@ -57,24 +81,35 @@ class PlayerFragment : Fragment(), View.OnClickListener {
 
     interface PlayerFragmentListener {
         fun playPause(fab: FloatingActionButton)
-        fun skipPrevious()
-        fun skipNext()
+        fun skipPrevNext(forward: Boolean)
     }
 
     override fun onClick(v: View) {
         when (v.id) {
             R.id.btn_play -> {
-                Toast.makeText(requireActivity(), "PLAY", Toast.LENGTH_SHORT).show()
                 mListener?.playPause(binding.btnPlay)
             }
             R.id.btn_skip_prev -> {
-                Toast.makeText(requireActivity(), "PREVIOUS", Toast.LENGTH_SHORT).show()
-                mListener?.skipPrevious()
+                mListener?.skipPrevNext(false)
             }
             R.id.btn_skip_next -> {
-                Toast.makeText(requireActivity(), "NEXT", Toast.LENGTH_SHORT).show()
-                mListener?.skipNext()
+                mListener?.skipPrevNext(true)
             }
         }
+        updateFragment()
     }
+
+    fun updateFragment() {
+        val song = mainActivity.getCurrentSong()
+
+        binding.tvSongTitle.text = song.title
+        binding.tvSongArtist.text = song.artist
+
+        if (song.thumbnail != null) {
+            binding.ivThumbnail.setImageBitmap(song.thumbnail)
+        } else {
+            binding.ivThumbnail.setImageResource(R.drawable.ic_action_song)
+        }
+    }
+
 }
