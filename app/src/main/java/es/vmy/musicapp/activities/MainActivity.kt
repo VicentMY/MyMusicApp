@@ -33,6 +33,7 @@ import es.vmy.musicapp.fragments.PlayerFragment
 import es.vmy.musicapp.fragments.PlaylistsFragment
 import es.vmy.musicapp.fragments.SettingsFragment
 import es.vmy.musicapp.fragments.SongsFragment
+import es.vmy.musicapp.utils.AuthManager
 import es.vmy.musicapp.utils.LAST_SONG_KEY
 import es.vmy.musicapp.utils.PREFERENCES_FILE
 import kotlinx.coroutines.Dispatchers
@@ -140,7 +141,8 @@ class MainActivity : AppCompatActivity(),
             apply()
         }
 
-        // Resets the MediaPlayer
+        // Stops the Runnable that updates the SeekBar, stops the MediaPlayer and releases it before closing the MainActivity
+        handler.removeCallbacks(updateSeekBarRunnable)
         music.stop()
         music.release()
     }
@@ -253,8 +255,8 @@ class MainActivity : AppCompatActivity(),
             }
             R.id.nav_logout -> {
                 changeMenuSelection(item)
-                //TODO
-
+                // Closes the Firebase session
+                AuthManager().logOut()
                 startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                 finish()
                 true

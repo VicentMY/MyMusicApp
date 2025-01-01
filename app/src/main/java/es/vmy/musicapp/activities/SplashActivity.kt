@@ -2,7 +2,6 @@ package es.vmy.musicapp.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
@@ -13,8 +12,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import es.vmy.musicapp.R
 import es.vmy.musicapp.databinding.ActivitySplashBinding
-import es.vmy.musicapp.utils.PREFERENCES_FILE
-import es.vmy.musicapp.utils.REMEMBER_LOGIN_KEY
 import java.util.Timer
 import kotlin.concurrent.schedule
 
@@ -64,18 +61,7 @@ class SplashActivity : AppCompatActivity() {
     private fun showNextActivity() {
         binding.progressBar.visibility = View.GONE
 
-        val prefs = getSharedPreferences(PREFERENCES_FILE, Context.MODE_PRIVATE)
-        val autoLogin = prefs.getBoolean(REMEMBER_LOGIN_KEY, false)
-
-        val activity: Intent
-
-        activity = if (autoLogin) {
-            Intent(this@SplashActivity, MainActivity::class.java)
-        } else {
-            Intent(this@SplashActivity, LoginActivity::class.java)
-        }
-
-        startActivity(activity)
+        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
         finish()
     }
 

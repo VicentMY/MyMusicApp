@@ -25,7 +25,6 @@
     <string name="dialog_confirm">Si</string>
     <string name="dialog_cancel">No</string>
     <string name="username_title">Nombre de usuario</string>
-    <string name="remember_login_title">Recordar Inicio de sesión</string>
     <string name="chat_header">Chat</string>
     <string name="cache_header">Caché</string>
     <string name="cache_storage_title">Activar modo sin conexión</string>
@@ -34,4 +33,13 @@
     <string name="unknown_artist">Artista desconocido</string>
     <string name="already_first_msg">No hay pista anterior</string>
     <string name="already_last_msg">No hay pista siguiente</string>
+    <string name="tv_pass_recovery">¿Contraseña olvidada? Clica aquí</string>
+    <string name="bad_credentials">Credenciales erróneos</string>
+    <string name="no_email_or_pass">Usuario y correo electronico requeridos</string>
+    <string name="pass_recovery_title">RESTABLECER CONTRASEÑA</string>
+    <string name="btn_send_email">ENVIAR CORREO</string>
+    <string name="rec_mail_sent">Correo de recuperación enviado. Revisa tu buzón de entrada</string>
+    <string name="rec_mail_error">Ha ocurrido un error. Intentalo de nuevo más tarde</string>
+    <string name="rec_no_mail_error">Se requiere un correo de recuperación</string>
+    <string name="error_no_same_pass">La contraseña y su confirmación tienen que ser iguales</string>
 </resources>

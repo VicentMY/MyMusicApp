@@ -3,16 +3,19 @@ package es.vmy.musicapp.activities
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import es.vmy.musicapp.R
 import es.vmy.musicapp.databinding.ActivityLoginBinding
 import es.vmy.musicapp.fragments.LoginFragment
+import es.vmy.musicapp.fragments.PassRecoveryFragment
 import es.vmy.musicapp.fragments.RegisterFragment
-import es.vmy.musicapp.utils.LOG_TAG
+import es.vmy.musicapp.utils.AuthManager
 
-class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentListener, RegisterFragment.RegisterFragmentListener {
+class LoginActivity : AppCompatActivity(),
+    LoginFragment.LoginFragmentListener,
+    RegisterFragment.RegisterFragmentListener,
+    PassRecoveryFragment.PassRecoveryFragmentListener {
 
     private lateinit var binding: ActivityLoginBinding
 
@@ -20,29 +23,57 @@ class LoginActivity : AppCompatActivity(), LoginFragment.LoginFragmentListener, 
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        val user = AuthManager().getCurrentUser()
+        // If the user is already logged in jumps straight to MainActivity
+        if (user != null) {
+            onLogin()
+        }
     }
 
-    override fun btnLogin() {
-        //TODO: Implementar Login en la app
-        Log.d(LOG_TAG, "LOGIN")
-
+    // Login Fragment
+    override fun onLogin() {
         startActivity(Intent(this@LoginActivity, MainActivity::class.java))
         finish()
     }
 
-    override fun btnToRegister() {
+    override fun toRegister() {
         supportFragmentManager.commit {
             replace<RegisterFragment>(R.id.loginContView)
             setReorderingAllowed(true)
         }
     }
 
-    override fun btnRegister() {
-        //TODO: Implementar Registro en la app
-        Log.d(LOG_TAG, "REGISTER")
+    override fun toPassRecovery() {
+        supportFragmentManager.commit {
+            replace<PassRecoveryFragment>(R.id.loginContView)
+            setReorderingAllowed(true)
+        }
+    }
+    //
+
+    // Register Fragment
+    override fun onRegistered() {
+        onLogin()
     }
 
-    override fun btnBackToLogin() {
+    override fun backToLoginRegister() {
+        toLoginFragment()
+    }
+    //
+
+    // PassRecovery Fragment
+    override fun onPassRecoveryMailSent() {
+        toLoginFragment()
+    }
+
+    override fun backToLoginRecovery() {
+        toLoginFragment()
+    }
+    //
+
+    // Prevents code duplication
+    private fun toLoginFragment() {
         supportFragmentManager.commit {
             replace<LoginFragment>(R.id.loginContView)
             setReorderingAllowed(true)

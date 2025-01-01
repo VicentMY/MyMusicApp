@@ -1,15 +1,19 @@
 <resources>
+    <!-- Miscellaneous -->
     <string name="app_name">Music App</string>
+    <string name="copyright">App created by VicentMY</string>
+    <!-- Navigation -->
     <string name="nav_songs">Song List</string>
     <string name="nav_playlists">Playlists</string>
     <string name="navigation_drawer_open">Open navigation</string>
     <string name="navigation_drawer_close">Close navigation</string>
     <string name="nav_player">Music player</string>
     <string name="nav_chat">Chat</string>
-    <string name="copyright">App created by VicentMY</string>
     <string name="menu_music_group">Music</string>
     <string name="menu_miscellaneous_group">Miscellaneous</string>
-    <!-- TODO: Remove or change this placeholder text -->
+    <string name="nav_logout">Logout</string>
+    <string name="nav_settings">App preferences</string>
+    <!-- Login and Register -->
     <string name="login_title">LOGIN</string>
     <string name="email_field">Email</string>
     <string name="passwd_field">Password</string>
@@ -19,25 +23,32 @@
     <string name="passwd_confirm">Password confirmation</string>
     <string name="btn_register">REGISTER</string>
     <string name="btn_back_login">BACK TO LOGIN</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="nav_logout">Logout</string>
-    <string name="nav_settings">App preferences</string>
+    <string name="tv_pass_recovery">Forgot Password? Click here</string>
+    <string name="bad_credentials">Bad Credentials</string>
+    <string name="no_email_or_pass">Email and password are required</string>
+    <!-- Dialogs -->
     <string name="dialog_message">Do you want to exit the application?</string>
     <string name="dialog_confirm">Yes</string>
     <string name="dialog_cancel">No</string>
-    <!-- Preference Titles -->
-
-    <!-- Messages Preferences -->
-
-    <!-- Sync Preferences -->
+    <!-- Preferences -->
+    <!-- Chat -->
     <string name="chat_header">Chat</string>
     <string name="username_title">Username</string>
-    <string name="remember_login_title">Remember login</string>
+    <string name="chat_color">Chat background color (in hex)</string>
+    <!-- Cache -->
     <string name="cache_header">Cache</string>
     <string name="cache_storage_title">Enable offline mode</string>
-    <string name="chat_color">Chat background color (in hex)</string>
+    <!-- Permissions -->
     <string name="perm_denied_msg">You must give Audio and Music Access permissions to use the app</string>
+    <!-- Songs -->
     <string name="unknown_artist">Unknown artist</string>
     <string name="already_first_msg">There is no previous track</string>
     <string name="already_last_msg">There is no next track</string>
+    <!-- Password Recovery -->
+    <string name="pass_recovery_title">RESET PASSWORD</string>
+    <string name="btn_send_email">SEND EMAIL</string>
+    <string name="rec_mail_sent">Recovery email sent. Check your inbox</string>
+    <string name="rec_mail_error">An error occurred. Try again later</string>
+    <string name="rec_no_mail_error">A recovery email is required</string>
+    <string name="error_no_same_pass">Password and the confirmation must be the same</string>
 </resources>

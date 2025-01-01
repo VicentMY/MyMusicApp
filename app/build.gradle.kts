@@ -1,6 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    // Firebase
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -40,6 +42,11 @@ android {
 }
 
 dependencies {
+
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
+    implementation("com.google.firebase:firebase-auth")
+    //
 
     // MOD
     implementation("androidx.fragment:fragment-ktx:1.8.3")

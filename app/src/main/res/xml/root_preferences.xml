@@ -18,10 +18,6 @@
     <PreferenceCategory app:title="@string/cache_header">
 
         <SwitchPreferenceCompat
-            app:key="remember_login"
-            app:title="@string/remember_login_title" />
-
-        <SwitchPreferenceCompat
             app:key="offline_mode"
             app:title="@string/cache_storage_title" />
 
