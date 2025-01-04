@@ -3,6 +3,8 @@ plugins {
     id("org.jetbrains.kotlin.android")
     // Firebase
     id("com.google.gms.google-services")
+    // Room
+    id("kotlin-kapt")
 }
 
 android {
@@ -48,10 +50,21 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     //
 
+    // Room components
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-ktx:$roomVersion")
+    kapt("androidx.room:room-compiler:$roomVersion")
+    //
+
     // MOD
     implementation("androidx.fragment:fragment-ktx:1.8.3")
-    implementation("com.squareup.picasso:picasso:2.8")
     implementation("androidx.preference:preference:1.2.0")
+    implementation("androidx.media:media:1.7.0")
+    //
+
+    // Animation
+    implementation("androidx.navigation:navigation-fragment-ktx:2.8.5")
+    implementation("androidx.navigation:navigation-ui-ktx:2.8.5")
     //
 
     implementation("androidx.core:core-ktx:1.13.1")

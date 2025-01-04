@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import es.vmy.musicapp.R
 import es.vmy.musicapp.activities.MainActivity
@@ -24,7 +25,7 @@ class PlayerFragment : Fragment(), View.OnClickListener {
     private lateinit var mainActivity: MainActivity
     private lateinit var music: MediaPlayer
 
-    fun updateSeekBarAndCo(progress: Int, currentTime: String, totalTime: String) {
+    fun updateSeekBarAndTimers(progress: Int, currentTime: String, totalTime: String) {
         binding.seekBar.progress = progress
         binding.tvCurrentTime.text = currentTime
         binding.tvTotalTime.text = totalTime
@@ -50,6 +51,19 @@ class PlayerFragment : Fragment(), View.OnClickListener {
         binding.btnPlay.setOnClickListener(this)
         binding.btnSkipPrev.setOnClickListener(this)
         binding.btnSkipNext.setOnClickListener(this)
+
+        // SeekBar listener
+        binding.seekBar.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Obligatory to implement, not used
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // Obligatory to implement, not used
+            }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                mListener?.onSeekBarChange(seekBar!!.progress)
+            }
+        })
 
         return binding.root
     }
@@ -81,7 +95,8 @@ class PlayerFragment : Fragment(), View.OnClickListener {
 
     interface PlayerFragmentListener {
         fun playPause(fab: FloatingActionButton)
-        fun skipPrevNext(forward: Boolean)
+        fun skipPrevNext(forward: Boolean, fab: FloatingActionButton? = null)
+        fun onSeekBarChange(progress: Int)
     }
 
     override fun onClick(v: View) {
@@ -90,10 +105,10 @@ class PlayerFragment : Fragment(), View.OnClickListener {
                 mListener?.playPause(binding.btnPlay)
             }
             R.id.btn_skip_prev -> {
-                mListener?.skipPrevNext(false)
+                mListener?.skipPrevNext(false, binding.btnPlay)
             }
             R.id.btn_skip_next -> {
-                mListener?.skipPrevNext(true)
+                mListener?.skipPrevNext(true, binding.btnPlay)
             }
         }
         updateFragment()

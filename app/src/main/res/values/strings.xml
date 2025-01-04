@@ -51,4 +51,8 @@
     <string name="rec_mail_error">An error occurred. Try again later</string>
     <string name="rec_no_mail_error">A recovery email is required</string>
     <string name="error_no_same_pass">Password and the confirmation must be the same</string>
+    <string name="no_internet_icon">No Internet Conection Icon</string>
+    <string name="dialog_offline_title">Enabling Offline Mode</string>
+    <string name="dialog_offline_message">By enabling offline mode, the app will store the needed data in your device and therefore will use more storage space.</string>
+    <string name="dialog_ok">Ok</string>
 </resources>

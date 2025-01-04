@@ -2,16 +2,12 @@ package es.vmy.musicapp.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.SharedPreferences
-import android.graphics.BitmapFactory
-import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.MediaStore
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.OnBackPressedCallback
@@ -25,6 +21,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import es.vmy.musicapp.R
+import es.vmy.musicapp.classes.AppDB
 import es.vmy.musicapp.classes.Song
 import es.vmy.musicapp.databinding.ActivityMainBinding
 import es.vmy.musicapp.dialogs.BackConfirmDialog
@@ -67,12 +64,13 @@ class MainActivity : AppCompatActivity(),
 
                 // Updates the SeekBar and the TextViews in the PlayerFragment
                 val playerFragment = supportFragmentManager.findFragmentById(R.id.mainContView) as PlayerFragment
-                playerFragment.updateSeekBarAndCo(progress, currentTime, totalTime)
+                playerFragment.updateSeekBarAndTimers(progress, currentTime, totalTime)
 
                 // Checks if the song has finished playing and skips to the next song
-                if (currentTime == totalTime) {
+                // Sometimes the MediaPlayer doesn't reach the end of the song, so it's set to -1000
+                if (currentTimePosition >= duration -1000) {
+                    skipPrevNext(true, null)
                     playerFragment.updateFragment()
-                    skipPrevNext(true)
                 }
 
                 // Updates the SeekBar every second
@@ -84,7 +82,7 @@ class MainActivity : AppCompatActivity(),
 
     // Gives access to player variables from other fragments
     fun getSongs(): MutableList<Song> {
-    return songs
+        return songs
     }
 
     fun getCurrentSong(): Song {
@@ -104,29 +102,32 @@ class MainActivity : AppCompatActivity(),
         setSupportActionBar(binding.mainToolbar)
         setUpNavigationDrawer()
         setUpExitDialog()
-    }
 
-    override fun onResume() {
-        super.onResume()
         binding.musicProgressBar.visibility = View.VISIBLE
         lifecycleScope.launch(Dispatchers.IO) {
-            // Loads the list of songs if it isn't already loaded
-            if (songs.isEmpty()) {
-                songs = getSongList()
+
+            val db = AppDB.getInstance(this@MainActivity).SongDAO()
+            // Loads the list of songs
+            songs = db.getAll()
+
+            // Loads the last played song when the app was closed
+            val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
+            val lastSongId = prefs.getLong(LAST_SONG_KEY, 1)
+
+            // Sets the last played song as the current song
+            songs.forEach {
+                if (it.id == lastSongId) {
+                    currentSong = it
+                }
             }
 
             withContext(Dispatchers.Main) {
                 binding.musicProgressBar.visibility = View.GONE
-
-                val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
-                currentSong = songs[prefs.getInt(LAST_SONG_KEY, 0)]
-
-                // Loads the last played song when the app is closed
-                music = MediaPlayer.create(this@MainActivity, Uri.parse(currentSong.path))
                 supportFragmentManager.commit {
-                    replace<SongsFragment>(R.id.mainContView)
+                    replace<PlayerFragment>(R.id.mainContView)
                     setReorderingAllowed(true)
                 }
+                music = MediaPlayer.create(this@MainActivity, Uri.parse(currentSong.path))
             }
         }
     }
@@ -134,10 +135,10 @@ class MainActivity : AppCompatActivity(),
     override fun onDestroy() {
         super.onDestroy()
 
-        // Stores the last played song in the SharedPreferences if the current song isn't null
+        // Stores the last played song in the SharedPreferences before closing the MainActivity
         val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
         with(prefs.edit()) {
-            putInt(LAST_SONG_KEY, songs.indexOf(currentSong))
+            putLong(LAST_SONG_KEY, currentSong.id)
             apply()
         }
 
@@ -185,8 +186,8 @@ class MainActivity : AppCompatActivity(),
 
         binding.navigationView.setNavigationItemSelectedListener(this)
 
-        // Selects song list as default
-        val menuItem: MenuItem = binding.navigationView.menu.getItem(1)
+        // Selects player as default
+        val menuItem: MenuItem = binding.navigationView.menu.getItem(0)
         menuItem.isChecked = true
     }
 
@@ -281,7 +282,7 @@ class MainActivity : AppCompatActivity(),
         }
     }
 
-    override fun skipPrevNext(forward: Boolean) {
+    override fun skipPrevNext(forward: Boolean, fab: FloatingActionButton?) {
         val currentPosition = songs.indexOf(currentSong)
         var err = false
 
@@ -310,7 +311,7 @@ class MainActivity : AppCompatActivity(),
             }
 
             // If the MediaPlayer already exists, stops it and releases it
-            if (::music.isInitialized) {
+            if (::music.isInitialized && music.isPlaying) {
                 music.stop()
                 handler.removeCallbacks(updateSeekBarRunnable)
                 music.release()
@@ -319,7 +320,16 @@ class MainActivity : AppCompatActivity(),
             music = MediaPlayer.create(this, Uri.parse(currentSong.path))
             music.start()
             handler.post(updateSeekBarRunnable)
+
+            // Sets the pause button to the Play/Pause button
+            fab?.setImageResource(R.drawable.ic_action_pause)
         }
+    }
+
+    override fun onSeekBarChange(progress: Int) {
+        // Calculates the position in the song to skip to and skips to it
+        val seekToPosition = (music.duration * progress) / 100
+        music.seekTo(seekToPosition)
     }
     //
 
@@ -344,89 +354,6 @@ class MainActivity : AppCompatActivity(),
         handler.post(updateSeekBarRunnable)
     }
     //
-
-    private fun getSongList(): MutableList<Song> {
-        val songList: MutableList<Song> = mutableListOf()
-        val projection = arrayOf(
-            MediaStore.Audio.Media.DATA,
-            MediaStore.Audio.Media.DURATION,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST
-        )
-        val contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-
-        var song: Song
-
-        // Gets the path to the root of the SD card
-        val sdRoot = getExternalFilesDirs(null) // "/storage/SD_UUID"
-            .getOrNull(1)?.absolutePath!!
-            .split("/Android/data/es.vmy.musicapp/files") [0]
-
-        // Gets the path to the root of the internal storage
-        val phoneRoot = "/storage/emulated/0"
-
-        this.contentResolver.query(
-            contentUri,
-            projection,
-            null,
-            null,
-            null
-        )?.use { cursor ->
-            // Gets all needed data from each song in the device
-            while (cursor.moveToNext()) {
-                val dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)
-                val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
-                val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
-                val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
-
-                val path = dataColumn.let { cursor.getString(it) }
-
-                // Ensures that the song is located in the Music or Download folder on the phone or SD card
-                if (
-                    path.startsWith("$phoneRoot/Music/") ||
-                    path.startsWith("$phoneRoot/Download/") ||
-                    path.startsWith("$sdRoot/Music/") ||
-                    path.startsWith("$sdRoot/Download/")
-                    ) {
-
-                    val duration = durationColumn.let { cursor.getLong(it) }
-                    val title = titleColumn.let { cursor.getString(it) }
-
-                    val artist = if (artistColumn.let { cursor.getString(it) } == "<unknown>") {
-                        getString(R.string.unknown_artist)
-                    } else {
-                        artistColumn.let { cursor.getString(it) }
-                    }
-
-                    val songArt = getSongArt(path)
-                    // Creates a Bitmap of the song's thumbnail and stores it into 'thumbnail'
-                    val thumbnail = if (songArt != null) {
-                        BitmapFactory.decodeByteArray(songArt, 0, songArt.size)
-                    } else {
-                        BitmapFactory.decodeResource(resources, R.drawable.ic_action_song)
-                    }
-
-                    // Creates a Song object with the retrieved data and adds it to the list
-                    song = Song(
-                        title,
-                        thumbnail,
-                        artist,
-                        duration,
-                        path
-                    )
-                    songList.add(song)
-                }
-            }
-        }
-        return songList
-    }
-
-    private fun getSongArt(path: String): ByteArray? {
-        val retriever = MediaMetadataRetriever()
-        // Retrieves the thumbnail of the song
-        retriever.setDataSource(path)
-        return retriever.embeddedPicture
-    }
 
     private fun formatTime(mSec: Int): String {
         // Calculates the minutes and seconds of the song

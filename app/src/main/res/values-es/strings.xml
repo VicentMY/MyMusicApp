@@ -42,4 +42,8 @@
     <string name="rec_mail_error">Ha ocurrido un error. Intentalo de nuevo más tarde</string>
     <string name="rec_no_mail_error">Se requiere un correo de recuperación</string>
     <string name="error_no_same_pass">La contraseña y su confirmación tienen que ser iguales</string>
+    <string name="no_internet_icon">Icono de sin conexión a internet</string>
+    <string name="dialog_offline_title">Activando modo sin conexión</string>
+    <string name="dialog_offline_message">Al activar el modo sin conexión, la app guardará los datos necesarios en tu dispositivo por lo que esta ocupará más.</string>
+    <string name="dialog_ok">Vale</string>
 </resources>
