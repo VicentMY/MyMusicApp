@@ -71,7 +71,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
                         withContext(Dispatchers.Main) {
                             if (userLogged != null) {
                                 // If the login is successful, the user is taken to the main activity
-                                mListener?.onLogin()
+                                mListener?.onLogin(email)
                             } else {
                                 // In case of an error, lets the user know
                                 Snackbar.make(binding.root, getString(R.string.bad_credentials), Snackbar.LENGTH_SHORT).show()
@@ -93,7 +93,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
     }
 
     interface LoginFragmentListener {
-        fun onLogin()
+        fun onLogin(email: String? = null)
         fun toRegister()
         fun toPassRecovery()
     }

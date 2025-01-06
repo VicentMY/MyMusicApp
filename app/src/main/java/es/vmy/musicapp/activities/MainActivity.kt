@@ -31,6 +31,8 @@ import es.vmy.musicapp.fragments.PlaylistsFragment
 import es.vmy.musicapp.fragments.SettingsFragment
 import es.vmy.musicapp.fragments.SongsFragment
 import es.vmy.musicapp.utils.AuthManager
+import es.vmy.musicapp.utils.CHAT_COLOR_KEY
+import es.vmy.musicapp.utils.CHAT_USERNAME_KEY
 import es.vmy.musicapp.utils.LAST_SONG_KEY
 import es.vmy.musicapp.utils.PREFERENCES_FILE
 import kotlinx.coroutines.Dispatchers
@@ -258,6 +260,13 @@ class MainActivity : AppCompatActivity(),
                 changeMenuSelection(item)
                 // Closes the Firebase session
                 AuthManager().logOut()
+                // Removes the username and color from the SharedPreferences
+                val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
+                with(prefs.edit()) {
+                    remove(CHAT_USERNAME_KEY)
+                    remove(CHAT_COLOR_KEY)
+                }
+
                 startActivity(Intent(this@MainActivity, LoginActivity::class.java))
                 finish()
                 true

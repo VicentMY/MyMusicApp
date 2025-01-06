@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Music App</string>
     <string name="nav_songs">Canciones</string>
-    <string name="nav_playlists">Playlists</string>
+    <string name="nav_playlists">Retrofit</string>
     <string name="navigation_drawer_open">Abrir navegación</string>
     <string name="navigation_drawer_close">Cerrar navegación</string>
     <string name="nav_player">Reproductor</string>
@@ -46,4 +46,7 @@
     <string name="dialog_offline_title">Activando modo sin conexión</string>
     <string name="dialog_offline_message">Al activar el modo sin conexión, la app guardará los datos necesarios en tu dispositivo por lo que esta ocupará más.</string>
     <string name="dialog_ok">Vale</string>
+    <string name="chat_et_hint">Escribe un mensaje</string>
+    <string name="chat_contDesc">botón enviar mensaje</string>
+    <string name="relogin_required">Es necesario volver a iniciar sesión</string>
 </resources>

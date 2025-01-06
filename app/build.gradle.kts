@@ -48,6 +48,7 @@ dependencies {
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:33.7.0"))
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
     //
 
     // Room components
@@ -63,8 +64,8 @@ dependencies {
     //
 
     // Animation
-    implementation("androidx.navigation:navigation-fragment-ktx:2.8.5")
-    implementation("androidx.navigation:navigation-ui-ktx:2.8.5")
+    val dynamicanimation_version = "1.0.0"
+    implementation("androidx.dynamicanimation:dynamicanimation:$dynamicanimation_version")
     //
 
     implementation("androidx.core:core-ktx:1.13.1")

@@ -11,6 +11,8 @@ import es.vmy.musicapp.fragments.LoginFragment
 import es.vmy.musicapp.fragments.PassRecoveryFragment
 import es.vmy.musicapp.fragments.RegisterFragment
 import es.vmy.musicapp.utils.AuthManager
+import es.vmy.musicapp.utils.PREFERENCES_FILE
+import es.vmy.musicapp.utils.USER_EMAIL_KEY
 
 class LoginActivity : AppCompatActivity(),
     LoginFragment.LoginFragmentListener,
@@ -32,7 +34,16 @@ class LoginActivity : AppCompatActivity(),
     }
 
     // Login Fragment
-    override fun onLogin() {
+    override fun onLogin(email: String?) {
+
+        if (email != null) {
+            val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
+            with(prefs.edit()) {
+                putString(USER_EMAIL_KEY, email)
+                apply()
+            }
+        }
+
         startActivity(Intent(this@LoginActivity, MainActivity::class.java))
         finish()
     }

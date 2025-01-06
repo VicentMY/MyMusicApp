@@ -5,18 +5,20 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import es.vmy.musicapp.dao.ChatMessageDAO
 import es.vmy.musicapp.dao.SongDAO
 import es.vmy.musicapp.utils.Converters
 import es.vmy.musicapp.utils.DATABASE_NAME
 
 @Database(
-    entities = [Song::class],
+    entities = [Song::class, ChatMessage::class],
     version = 1
 )
 @TypeConverters(Converters::class)
 abstract class AppDB: RoomDatabase() {
 
     abstract fun SongDAO(): SongDAO
+    abstract fun ChatMessageDAO(): ChatMessageDAO
 
     companion object {
 
