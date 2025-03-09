@@ -83,7 +83,7 @@ class SplashActivity : AppCompatActivity() {
 
     private fun showNextActivity() {
         binding.progressBar.visibility = View.GONE
-        startActivity(Intent(this@SplashActivity, LoginActivity::class.java))
+        startActivity(Intent(this@SplashActivity, MainActivity::class.java))
         finish()
     }
 

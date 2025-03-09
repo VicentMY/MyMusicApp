@@ -8,8 +8,13 @@
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
-            app:key="chat_color"
-            app:title="@string/chat_color"
+            app:key="chat_color_self"
+            app:title="@string/chat_color_self"
+            app:useSimpleSummaryProvider="true" />
+
+        <EditTextPreference
+            app:key="chat_color_other"
+            app:title="@string/chat_color_other"
             app:useSimpleSummaryProvider="true" />
 
 

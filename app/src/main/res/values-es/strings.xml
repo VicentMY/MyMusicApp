@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Music App</string>
+    <string name="app_name">MyMusicApp</string>
     <string name="nav_songs">Canciones</string>
     <string name="nav_playlists">Retrofit</string>
     <string name="navigation_drawer_open">Abrir navegación</string>
@@ -19,16 +19,16 @@
     <string name="passwd_confirm">Confirmar contraseña</string>
     <string name="btn_register">REGISTRAR</string>
     <string name="btn_back_login">VOLVER AL LOGIN</string>
-    <string name="nav_logout">Cerrar sesión</string>
+    <string name="nav_logout">Cerrar sesión del chat</string>
     <string name="nav_settings">Preferencias de la app</string>
-    <string name="dialog_message">¿Quieres salir de la aplicación?</string>
+    <string name="dialog_app_close_message">¿Quieres salir de la aplicación?</string>
     <string name="dialog_confirm">Si</string>
     <string name="dialog_cancel">No</string>
     <string name="username_title">Nombre de usuario</string>
     <string name="chat_header">Chat</string>
     <string name="cache_header">Caché</string>
     <string name="cache_storage_title">Activar modo sin conexión</string>
-    <string name="chat_color">Color de fondo de mensajes (en hex)</string>
+    <string name="chat_color_self">Color de fondo de tus mensajes (ejemplo: #FFF000)</string>
     <string name="perm_denied_msg">Tienes que permitir el acceso de Música y Audio para poder usar la app</string>
     <string name="unknown_artist">Artista desconocido</string>
     <string name="already_first_msg">No hay pista anterior</string>
@@ -49,4 +49,13 @@
     <string name="chat_et_hint">Escribe un mensaje</string>
     <string name="chat_contDesc">botón enviar mensaje</string>
     <string name="relogin_required">Es necesario volver a iniciar sesión</string>
+    <string name="err_add_msg">Error al enviar el mensaje</string>
+    <string name="chat_color_other">Color de fondo de mensajes de otros (ejemplo: #FFF000)</string>
+    <string name="dialog_delete_msg_title">Eliminar Mensaje</string>
+    <string name="dialog_delete_msg_message">¿Seguro/a que quieres borrar el mensaje?\nUna vez eliminado no se puede recuperar.</string>
+    <string name="msg_deletion_not_permitted">No puedes borrar los mensajes de otros usuarios.</string>
+    <string name="err_retrieving_msg">Error al recuperar el mensaje</string>
+    <string name="msg_deleted_correctly">El mensaje se eliminó correctamente</string>
+    <string name="err_removing_msg">Error al eliminar el mensaje</string>
+    <string name="logout_message">"¡Hasta luego! Se ha cerrado la sesión de "</string>
 </resources>

@@ -2,12 +2,10 @@ package es.vmy.musicapp.fragments
 
 import android.content.Context.MODE_PRIVATE
 import android.os.Bundle
-import android.util.Log
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import es.vmy.musicapp.R
 import es.vmy.musicapp.dialogs.OfflineModeDialog
-import es.vmy.musicapp.utils.LOG_TAG
 import es.vmy.musicapp.utils.OFFLINE_MODE_KEY
 import es.vmy.musicapp.utils.PREFERENCES_FILE
 

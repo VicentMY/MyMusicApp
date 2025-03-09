@@ -13,12 +13,12 @@ class BackConfirmDialog: DialogFragment() {
             val builder = AlertDialog.Builder(it)
             builder
                 .setTitle(getString(R.string.app_name))
-                .setMessage(getString(R.string.dialog_message))
+                .setMessage(getString(R.string.dialog_app_close_message))
                 .setPositiveButton(getString(R.string.dialog_confirm)) {dialog, id ->
                     it.finish()
                 }
                 .setNegativeButton(getString(R.string.dialog_cancel)) {dialog, id ->
-                    dismiss() // <- No es obligatorio
+                    dismiss()
                 }
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")

@@ -75,7 +75,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
                             withContext(Dispatchers.Main) {
                                 if (userRegistered != null) {
                                     // if the user was registered, goes to the login screen
-                                    mListener?.onRegistered()
+                                    mListener?.onRegistered(email)
                                 } else {
                                     // Lets the user know an error occurred on registration
                                     Snackbar.make(binding.root, getString(R.string.bad_credentials), Snackbar.LENGTH_SHORT).show()
@@ -95,7 +95,7 @@ class RegisterFragment : Fragment(), View.OnClickListener {
     }
 
     interface RegisterFragmentListener {
-        fun onRegistered()
+        fun onRegistered(email: String)
         fun backToLoginRegister()
     }
 }

@@ -10,6 +10,7 @@ import android.os.Handler
 import android.os.Looper
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
@@ -31,10 +32,12 @@ import es.vmy.musicapp.fragments.PlaylistsFragment
 import es.vmy.musicapp.fragments.SettingsFragment
 import es.vmy.musicapp.fragments.SongsFragment
 import es.vmy.musicapp.utils.AuthManager
-import es.vmy.musicapp.utils.CHAT_COLOR_KEY
+import es.vmy.musicapp.utils.CHAT_COLOR_OTHER_KEY
+import es.vmy.musicapp.utils.CHAT_COLOR_SELF_KEY
 import es.vmy.musicapp.utils.CHAT_USERNAME_KEY
 import es.vmy.musicapp.utils.LAST_SONG_KEY
 import es.vmy.musicapp.utils.PREFERENCES_FILE
+import es.vmy.musicapp.utils.USER_EMAIL_KEY
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,6 +52,8 @@ class MainActivity : AppCompatActivity(),
     private lateinit var music: MediaPlayer
     private var songs: MutableList<Song> = mutableListOf()
     private lateinit var currentSong: Song
+
+    private val prefs by lazy { getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE) }
 
     // Runnable that updates the SeekBar
     private val handler = Handler(Looper.getMainLooper())
@@ -113,7 +118,6 @@ class MainActivity : AppCompatActivity(),
             songs = db.getAll()
 
             // Loads the last played song when the app was closed
-            val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
             val lastSongId = prefs.getLong(LAST_SONG_KEY, 1)
 
             // Sets the last played song as the current song
@@ -138,7 +142,6 @@ class MainActivity : AppCompatActivity(),
         super.onDestroy()
 
         // Stores the last played song in the SharedPreferences before closing the MainActivity
-        val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
         with(prefs.edit()) {
             putLong(LAST_SONG_KEY, currentSong.id)
             apply()
@@ -240,14 +243,6 @@ class MainActivity : AppCompatActivity(),
                 }
                 true
             }
-            R.id.nav_chat -> {
-                supportFragmentManager.commit {
-                    replace<ChatFragment>(R.id.mainContView)
-                    setReorderingAllowed(true)
-                    changeMenuSelection(item)
-                }
-                true
-            }
             R.id.nav_settings -> {
                 supportFragmentManager.commit {
                     replace<SettingsFragment>(R.id.mainContView)
@@ -256,19 +251,45 @@ class MainActivity : AppCompatActivity(),
                 }
                 true
             }
+            R.id.nav_chat -> {
+                val user = AuthManager().getCurrentUser()
+                // If the user is not logged in, then goes to LoginActivity first
+                if (user == null) {
+                    startActivity(Intent(this@MainActivity, LoginActivity::class.java))
+                }
+                // Then opens the ChatFragment
+                supportFragmentManager.commit {
+                    replace<ChatFragment>(R.id.mainContView)
+                    setReorderingAllowed(true)
+                    changeMenuSelection(item)
+                }
+                true
+            }
             R.id.nav_logout -> {
                 changeMenuSelection(item)
-                // Closes the Firebase session
-                AuthManager().logOut()
-                // Removes the username and color from the SharedPreferences
-                val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
-                with(prefs.edit()) {
-                    remove(CHAT_USERNAME_KEY)
-                    remove(CHAT_COLOR_KEY)
-                }
 
-                startActivity(Intent(this@MainActivity, LoginActivity::class.java))
-                finish()
+                // If the user is logged in, then logs out, if not nothing happens
+                val currentUser = AuthManager().getCurrentUser()
+                if (currentUser != null) {
+                    // Closes the Firebase session
+                    AuthManager().logOut()
+                    // Removes the username and colors from the SharedPreferences
+                    with(prefs.edit()) {
+                        remove(CHAT_USERNAME_KEY)
+                        remove(CHAT_COLOR_SELF_KEY)
+                        remove(CHAT_COLOR_OTHER_KEY)
+                    }
+
+                    val user = prefs.getString(USER_EMAIL_KEY, "") ?: ""
+                    Toast.makeText(this, getString(R.string.logout_message) + user, Toast.LENGTH_SHORT).show()
+
+                    // Jumps to the PlayerFragment to prevent the ChatFragment from being already open
+                    supportFragmentManager.commit {
+                        replace<PlayerFragment>(R.id.mainContView)
+                        setReorderingAllowed(true)
+                        changeMenuSelection(binding.navigationView.menu.getItem(0))
+                    }
+                }
                 true
             }
             else -> true

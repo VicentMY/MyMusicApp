@@ -1,6 +1,5 @@
 package es.vmy.musicapp.activities
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.fragment.app.commit
@@ -10,7 +9,6 @@ import es.vmy.musicapp.databinding.ActivityLoginBinding
 import es.vmy.musicapp.fragments.LoginFragment
 import es.vmy.musicapp.fragments.PassRecoveryFragment
 import es.vmy.musicapp.fragments.RegisterFragment
-import es.vmy.musicapp.utils.AuthManager
 import es.vmy.musicapp.utils.PREFERENCES_FILE
 import es.vmy.musicapp.utils.USER_EMAIL_KEY
 
@@ -25,26 +23,16 @@ class LoginActivity : AppCompatActivity(),
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val user = AuthManager().getCurrentUser()
-        // If the user is already logged in jumps straight to MainActivity
-        if (user != null) {
-            onLogin()
-        }
     }
 
     // Login Fragment
-    override fun onLogin(email: String?) {
-
-        if (email != null) {
-            val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
-            with(prefs.edit()) {
-                putString(USER_EMAIL_KEY, email)
-                apply()
-            }
+    override fun onLogin(email: String) {
+        val prefs = getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE)
+        with(prefs.edit()) {
+            putString(USER_EMAIL_KEY, email)
+            apply()
         }
 
-        startActivity(Intent(this@LoginActivity, MainActivity::class.java))
         finish()
     }
 
@@ -64,8 +52,8 @@ class LoginActivity : AppCompatActivity(),
     //
 
     // Register Fragment
-    override fun onRegistered() {
-        onLogin()
+    override fun onRegistered(email: String) {
+        onLogin(email)
     }
 
     override fun backToLoginRegister() {

@@ -1,6 +1,6 @@
 <resources>
     <!-- Miscellaneous -->
-    <string name="app_name">Music App</string>
+    <string name="app_name">MyMusicApp</string>
     <string name="copyright">App created by VicentMY</string>
     <!-- Navigation -->
     <string name="nav_songs">Song List</string>
@@ -11,7 +11,7 @@
     <string name="nav_chat">Chat</string>
     <string name="menu_music_group">Music</string>
     <string name="menu_miscellaneous_group">Miscellaneous</string>
-    <string name="nav_logout">Logout</string>
+    <string name="nav_logout">Logout from chat</string>
     <string name="nav_settings">App preferences</string>
     <!-- Login and Register -->
     <string name="login_title">LOGIN</string>
@@ -27,14 +27,14 @@
     <string name="bad_credentials">Bad Credentials</string>
     <string name="no_email_or_pass">Email and password are required</string>
     <!-- Dialogs -->
-    <string name="dialog_message">Do you want to exit the application?</string>
+    <string name="dialog_app_close_message">Do you want to exit the application?</string>
     <string name="dialog_confirm">Yes</string>
     <string name="dialog_cancel">No</string>
     <!-- Preferences -->
     <!-- Chat -->
     <string name="chat_header">Chat</string>
     <string name="username_title">Username</string>
-    <string name="chat_color">Chat background color (in hex)</string>
+    <string name="chat_color_self">Background color for your messages (example: #FFF000)</string>
     <!-- Cache -->
     <string name="cache_header">Cache</string>
     <string name="cache_storage_title">Enable offline mode</string>
@@ -51,7 +51,7 @@
     <string name="rec_mail_error">An error occurred. Try again later</string>
     <string name="rec_no_mail_error">A recovery email is required</string>
     <string name="error_no_same_pass">Password and the confirmation must be the same</string>
-    <string name="no_internet_icon">No Internet Conection Icon</string>
+    <string name="no_internet_icon">No Internet Connection Icon</string>
     <string name="dialog_offline_title">Enabling Offline Mode</string>
     <string name="dialog_offline_message">By enabling offline mode, the app will store the needed data in your device and therefore will use more storage space.</string>
     <string name="dialog_ok">OK</string>
@@ -59,4 +59,13 @@
     <string name="chat_contDesc">send message button</string>
     <string name="lorem_ipsum" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
     <string name="relogin_required">A re-login is required</string>
+    <string name="err_add_msg">Error sending the message</string>
+    <string name="chat_color_other">Background color for others\' messages (example: #FFF000)</string>
+    <string name="dialog_delete_msg_title">Delete Message</string>
+    <string name="dialog_delete_msg_message">Are you sure you want to delete this message?\nOnce deleted it cannot be recovered.</string>
+    <string name="msg_deletion_not_permitted">You can\'t delete other users\' messages.</string>
+    <string name="err_retrieving_msg">Error retrieving the message</string>
+    <string name="msg_deleted_correctly">The message was deleted correctly</string>
+    <string name="err_removing_msg">Error removing message</string>
+    <string name="logout_message">"Goodbye! Logged out of "</string>
 </resources>

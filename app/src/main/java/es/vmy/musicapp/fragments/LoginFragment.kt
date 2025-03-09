@@ -93,7 +93,7 @@ class LoginFragment : Fragment(), View.OnClickListener {
     }
 
     interface LoginFragmentListener {
-        fun onLogin(email: String? = null)
+        fun onLogin(email: String)
         fun toRegister()
         fun toPassRecovery()
     }

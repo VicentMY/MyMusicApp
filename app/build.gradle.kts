@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "es.vmy.musicapp"
-        minSdk = 24
+        minSdkVersion(rootProject.extra["defaultMinSdkVersion"] as Int)
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
