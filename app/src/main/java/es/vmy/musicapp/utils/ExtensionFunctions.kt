@@ -1,5 +1,7 @@
 package es.vmy.musicapp.utils
 
+import es.vmy.musicapp.classes.Song
+
 fun instantToFormattedString(instant: String): String {
     val newDate: String
     val newTime: String
@@ -27,4 +29,20 @@ fun instantToFormattedString(instant: String): String {
 fun colorToHex(color: Int): String {
     // Converts a resource color to a hex color String
     return String.format("#%06X", 0xFFFFFF and color)
+}
+
+fun idToSongList(idList: List<Long>, songList: List<Song>): MutableList<Song> {
+
+    val newSongList: MutableList<Song> = mutableListOf()
+
+    // For each id in the idList, find the song in the songList and add it to the newSongList
+    idList.forEach { id ->
+        songList.forEach { song ->
+            if (song.id == id) {
+                newSongList.add(song)
+            }
+        }
+    }
+
+    return newSongList
 }

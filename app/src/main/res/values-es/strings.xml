@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">MyMusicApp</string>
     <string name="nav_songs">Canciones</string>
-    <string name="nav_playlists">Retrofit</string>
+    <string name="nav_playlists">Listas de reproducción</string>
     <string name="navigation_drawer_open">Abrir navegación</string>
     <string name="navigation_drawer_close">Cerrar navegación</string>
     <string name="nav_player">Reproductor</string>
@@ -58,4 +58,28 @@
     <string name="msg_deleted_correctly">El mensaje se eliminó correctamente</string>
     <string name="err_removing_msg">Error al eliminar el mensaje</string>
     <string name="logout_message">"¡Hasta luego! Se ha cerrado la sesión de "</string>
+    <string name="fab_add_playlist">Añadir playlist</string>
+    <string name="tracks">pistas</string>
+    <string name="remove_from_playlist">Eliminar de la lista</string>
+    <string name="track_info">Información de la pista</string>
+    <string name="song_thumbnail_cont_desc">Imagen de la canción</string>
+    <string name="fab_add_song">Añadir canción a playlist</string>
+    <string name="dialog_create_playlist_title">Crear playlist</string>
+    <string name="playlist_name_field">Nombre de playlist</string>
+    <string name="playlist_created">¡Playlist creada!</string>
+    <string name="dialog_delete_playlist_title">Eliminar Playlist</string>
+    <string name="dialog_delete_playlist_message">¿Seguro/a que quieres eliminar esta playlist? Una vez eliminada no se puede recuperar.</string>
+    <string name="playlist_deleted_correctly">Playlist eliminada correctamente</string>
+    <string name="err_removing_playlist">Error al eliminar playlist</string>
+    <string name="dialog_create">Crear</string>
+    <string name="dialog_rename">Renombrar</string>
+    <string name="playlist_renamed">¡Playlist renombrada!</string>
+    <string name="add_songs_playlist_title">Añadir canciones a la playlist</string>
+    <string name="cancel_selection">Cancelar selección</string>
+    <string name="song_removed_from_playlist">¡Canción eliminada de la playlist!</string>
+    <string name="playlist_thumbnail_cont_desc">Imagen de la playlist</string>
+    <string name="skip_to_previous_song_btn_cont_desc">Botón retroceder canción</string>
+    <string name="skip_to_next_song_btn_cont_desc">Botón avanzar canción</string>
+    <string name="back_to_playlists_button">Botón volver a playlists</string>
+    <string name="play_btn_cont_desc">Botón reproducir</string>
 </resources>

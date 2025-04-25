@@ -57,10 +57,15 @@ dependencies {
     kapt("androidx.room:room-compiler:$roomVersion")
     //
 
+    // Room dependencies
+    implementation("com.google.code.gson:gson:2.10.1")
+    //
+
     // MOD
     implementation("androidx.fragment:fragment-ktx:1.8.3")
     implementation("androidx.preference:preference:1.2.0")
     implementation("androidx.media:media:1.7.0")
+    implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
     //
 
     // Animation

@@ -4,7 +4,7 @@
     <string name="copyright">App created by VicentMY</string>
     <!-- Navigation -->
     <string name="nav_songs">Song List</string>
-    <string name="nav_playlists">Retrofit</string>
+    <string name="nav_playlists">Playlists</string>
     <string name="navigation_drawer_open">Open navigation</string>
     <string name="navigation_drawer_close">Close navigation</string>
     <string name="nav_player">Music player</string>
@@ -62,10 +62,34 @@
     <string name="err_add_msg">Error sending the message</string>
     <string name="chat_color_other">Background color for others\' messages (example: #FFF000)</string>
     <string name="dialog_delete_msg_title">Delete Message</string>
-    <string name="dialog_delete_msg_message">Are you sure you want to delete this message?\nOnce deleted it cannot be recovered.</string>
+    <string name="dialog_delete_msg_message">Are you sure you want to delete this message? Once deleted it cannot be recovered.</string>
     <string name="msg_deletion_not_permitted">You can\'t delete other users\' messages.</string>
     <string name="err_retrieving_msg">Error retrieving the message</string>
     <string name="msg_deleted_correctly">The message was deleted correctly</string>
     <string name="err_removing_msg">Error removing message</string>
     <string name="logout_message">"Goodbye! Logged out of "</string>
+    <string name="fab_add_playlist">Add playlist</string>
+    <string name="tracks">tracks</string>
+    <string name="remove_from_playlist">Remove from playlist</string>
+    <string name="track_info">Track info</string>
+    <string name="song_thumbnail_cont_desc">Song Thumbnail</string>
+    <string name="fab_add_song">Add song to playlist</string>
+    <string name="dialog_create_playlist_title">Create playlist</string>
+    <string name="playlist_name_field">Playlist name</string>
+    <string name="playlist_created">Playlist created!</string>
+    <string name="dialog_delete_playlist_title">Delete Playlist</string>
+    <string name="dialog_delete_playlist_message">Are you sure you want to delete this playlist? Once deleted it cannot be recovered.</string>
+    <string name="playlist_deleted_correctly">Playlist deleted correctly</string>
+    <string name="err_removing_playlist">Error deleting playlist</string>
+    <string name="dialog_create">Create</string>
+    <string name="dialog_rename">Rename</string>
+    <string name="playlist_renamed">Playlist renamed!</string>
+    <string name="add_songs_playlist_title">Add songs to playlist</string>
+    <string name="cancel_selection">Cancel selection</string>
+    <string name="song_removed_from_playlist">Song removed from playlist!</string>
+    <string name="playlist_thumbnail_cont_desc">Playlist Thumbnail</string>
+    <string name="play_btn_cont_desc">Play button</string>
+    <string name="skip_to_previous_song_btn_cont_desc">Skip to previous song button</string>
+    <string name="skip_to_next_song_btn_cont_desc">Skip to next song button</string>
+    <string name="back_to_playlists_button">Back to playlists button</string>
 </resources>

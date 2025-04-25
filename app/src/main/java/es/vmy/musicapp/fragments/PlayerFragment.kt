@@ -121,9 +121,9 @@ class PlayerFragment : Fragment(), View.OnClickListener {
         binding.tvSongArtist.text = song.artist
 
         if (song.thumbnail != null) {
-            binding.ivThumbnail.setImageBitmap(song.thumbnail)
+            binding.ivSongThumbnail.setImageBitmap(song.thumbnail)
         } else {
-            binding.ivThumbnail.setImageResource(R.drawable.ic_action_song)
+            binding.ivSongThumbnail.setImageResource(R.drawable.ic_action_song)
         }
     }
 

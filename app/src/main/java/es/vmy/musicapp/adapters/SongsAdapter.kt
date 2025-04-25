@@ -19,24 +19,27 @@ class SongsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
         val view = LayoutInflater.from(context).inflate(R.layout.rv_song_item, parent, false)
-        return SongViewHolder(view, listener)
+        return SongViewHolder(view, context, listener)
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
         val song = items[position]
-        holder.bindItem(song)
+        holder.bindItem(song, position)
     }
 
     override fun getItemCount() = items.size
 
-    class SongViewHolder(v: View, private val mListener: SongsAdapterListener): RecyclerView.ViewHolder(v) {
+    class SongViewHolder(v: View, mContext: Context, private val mListener: SongsAdapterListener): RecyclerView.ViewHolder(v) {
 
-        private val songView : ConstraintLayout = v.findViewById(R.id.song_layout)
-        private val thumbnail: ImageView = v.findViewById(R.id.iv_thumbnail)
+        private val songView: ConstraintLayout = v.findViewById(R.id.song_layout)
+        private val thumbnail: ImageView = v.findViewById(R.id.iv_song_thumbnail)
         private val title: TextView = v.findViewById(R.id.tv_song_title)
         private val artist: TextView = v.findViewById(R.id.tv_song_artist)
 
-        fun bindItem(s: Song) {
+        private val normalBGColor = mContext.getColor(R.color.md_theme_background)
+        private val selectedBGColor = mContext.getColor(R.color.md_theme_inversePrimary)
+
+        fun bindItem(s: Song, position: Int) {
             if (s.thumbnail != null) {
                 thumbnail.setImageBitmap(s.thumbnail)
             } else {
@@ -45,13 +48,23 @@ class SongsAdapter(
             title.text = s.title
             artist.text = s.artist
 
+            songView.setBackgroundColor(
+                if (s.isSelected) selectedBGColor else normalBGColor
+            )
+
             songView.setOnClickListener {
                 mListener.onSongClick(s)
+            }
+
+            songView.setOnLongClickListener {
+                mListener.onSongLongClick(position)
+                true
             }
         }
 
         interface SongsAdapterListener {
             fun onSongClick(s: Song)
+            fun onSongLongClick(position: Int)
         }
     }
 }

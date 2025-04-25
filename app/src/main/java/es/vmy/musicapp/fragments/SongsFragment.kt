@@ -2,10 +2,11 @@ package es.vmy.musicapp.fragments
 
 import android.content.Context
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import es.vmy.musicapp.activities.MainActivity
 import es.vmy.musicapp.adapters.SongsAdapter
@@ -35,16 +36,16 @@ class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListen
         }
     }
 
-   override fun onCreateView(
+    override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSongsBinding.inflate(inflater, container, false)
 
-       mainActivity = activity as MainActivity
-       songs = mainActivity.getSongs()
+        mainActivity = activity as MainActivity
+        songs = mainActivity.getSongs()
 
-       return binding.root
+        return binding.root
     }
 
     override fun onResume() {
@@ -70,6 +71,11 @@ class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListen
 
     override fun onSongClick(s: Song) {
         mListener?.onSongSelected(s)
+    }
+
+    override fun onSongLongClick(position: Int) {
+        // TODO: Show dialog with track info
+        Toast.makeText(requireContext(), "Track info", Toast.LENGTH_SHORT).show()
     }
 
     interface SongsFragmentListener {

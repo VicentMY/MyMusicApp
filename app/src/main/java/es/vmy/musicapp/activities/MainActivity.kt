@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -13,6 +12,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.core.view.forEach
 import androidx.fragment.app.commit
@@ -23,10 +23,13 @@ import com.google.android.material.navigation.NavigationView
 import com.google.android.material.snackbar.Snackbar
 import es.vmy.musicapp.R
 import es.vmy.musicapp.classes.AppDB
+import es.vmy.musicapp.classes.Playlist
 import es.vmy.musicapp.classes.Song
 import es.vmy.musicapp.databinding.ActivityMainBinding
 import es.vmy.musicapp.dialogs.BackConfirmDialog
+import es.vmy.musicapp.fragments.AddSongPlaylistFragment
 import es.vmy.musicapp.fragments.ChatFragment
+import es.vmy.musicapp.fragments.InPlaylistFragment
 import es.vmy.musicapp.fragments.PlayerFragment
 import es.vmy.musicapp.fragments.PlaylistsFragment
 import es.vmy.musicapp.fragments.SettingsFragment
@@ -38,6 +41,7 @@ import es.vmy.musicapp.utils.CHAT_USERNAME_KEY
 import es.vmy.musicapp.utils.LAST_SONG_KEY
 import es.vmy.musicapp.utils.PREFERENCES_FILE
 import es.vmy.musicapp.utils.USER_EMAIL_KEY
+import es.vmy.musicapp.utils.idToSongList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -45,14 +49,19 @@ import kotlinx.coroutines.withContext
 class MainActivity : AppCompatActivity(),
     NavigationView.OnNavigationItemSelectedListener,
     PlayerFragment.PlayerFragmentListener,
-    SongsFragment.SongsFragmentListener {
+    SongsFragment.SongsFragmentListener,
+    PlaylistsFragment.PlaylistsFragmentListener,
+    InPlaylistFragment.InPlaylistFragmentListener,
+    AddSongPlaylistFragment.AddSongPlaylistFragmentListener {
 
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var music: MediaPlayer
     private var songs: MutableList<Song> = mutableListOf()
     private lateinit var currentSong: Song
+    private lateinit var selectedPlaylist: Playlist
 
+    private val db by lazy { AppDB.getInstance(this@MainActivity) }
     private val prefs by lazy { getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE) }
 
     // Runnable that updates the SeekBar
@@ -96,6 +105,10 @@ class MainActivity : AppCompatActivity(),
         return currentSong
     }
 
+    fun getSelectedPlaylist(): Playlist {
+        return selectedPlaylist
+    }
+
     fun getMusic(): MediaPlayer {
         return music
     }
@@ -112,10 +125,8 @@ class MainActivity : AppCompatActivity(),
 
         binding.musicProgressBar.visibility = View.VISIBLE
         lifecycleScope.launch(Dispatchers.IO) {
-
-            val db = AppDB.getInstance(this@MainActivity).SongDAO()
             // Loads the list of songs
-            songs = db.getAll()
+            songs = db.SongDAO().getAll()
 
             // Loads the last played song when the app was closed
             val lastSongId = prefs.getLong(LAST_SONG_KEY, 1)
@@ -391,4 +402,66 @@ class MainActivity : AppCompatActivity(),
         val sec = (mSec / 1000) % 60
         return String.format("%02d:%02d", min, sec)
     }
+
+    // Playlists
+    override fun onPlaylistSelected(p: Playlist) {
+
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            selectedPlaylist = db.PlaylistDAO().findById(p.id)
+
+            withContext(Dispatchers.Main) {
+                supportFragmentManager.commit {
+                    replace<InPlaylistFragment>(R.id.mainContView)
+                    setReorderingAllowed(true)
+                }
+            }
+        }
+    }
+    //
+
+    // In Playlist
+    override fun onBackBtnPressed() {
+        supportFragmentManager.commit {
+            replace<PlaylistsFragment>(R.id.mainContView)
+            setReorderingAllowed(true)
+        }
+    }
+
+    override fun onSongAddFab() {
+        supportFragmentManager.commit {
+            replace<AddSongPlaylistFragment>(R.id.mainContView)
+            setReorderingAllowed(true)
+        }
+    }
+
+    override fun onAccept(songSelection: MutableList<Song>) {
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            selectedPlaylist.songs.addAll(songSelection.map { it.id }.toMutableList())
+
+            val tmpList = idToSongList(selectedPlaylist.songs, songs)
+
+            if (tmpList.isNotEmpty()) {
+                selectedPlaylist.thumbnail = tmpList[0].thumbnail
+            }
+
+            db.PlaylistDAO().update(selectedPlaylist)
+
+            withContext(Dispatchers.Main) {
+                supportFragmentManager.commit {
+                    replace<InPlaylistFragment>(R.id.mainContView)
+                    setReorderingAllowed(true)
+                }
+            }
+        }
+    }
+
+    override fun onCancel() {
+        supportFragmentManager.commit {
+            replace<InPlaylistFragment>(R.id.mainContView)
+            setReorderingAllowed(true)
+        }
+    }
+    //
 }
