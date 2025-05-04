@@ -1,5 +1,7 @@
 package es.vmy.musicapp.utils
 
+import android.content.Context
+import es.vmy.musicapp.R
 import es.vmy.musicapp.classes.Song
 
 fun instantToFormattedString(instant: String): String {
@@ -45,4 +47,29 @@ fun idToSongList(idList: List<Long>, songList: List<Song>): MutableList<Song> {
     }
 
     return newSongList
+}
+
+fun formatTime(mSec: Long): String {
+    // Calculates the minutes and seconds of the song
+    val min = (mSec / 1000) / 60
+    val sec = (mSec / 1000) % 60
+    return String.format("%02d:%02d", min, sec)
+}
+
+fun bytesToFormattedMBString(bytes: Long): String {
+    val kb: Float = (bytes / 1024).toFloat()
+    val mb: Float = kb / 1024
+
+    return String.format("%.2f MB", mb)
+}
+
+fun summarizeSongPath(context: Context, longPath: String): String {
+    val sdPrefix = context.getString(R.string.sd_card_prefix)
+    val internalPrefix = context.getString(R.string.internal_storage_prefix)
+
+    return if (longPath.startsWith("/storage/emulated/0")) {
+        "$internalPrefix${longPath.substring(20)}"
+    } else {
+        "$sdPrefix${longPath.substring(19)}"
+    }
 }

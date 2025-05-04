@@ -10,7 +10,10 @@ data class Song(
     val title: String,
     val thumbnail: Bitmap?,
     val artist: String,
-    val duration: Long = 0,
+    val duration: Long,
+    val album: String,
+    val track: Int,
+    val size: Long,
     val path: String,
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0
@@ -18,6 +21,6 @@ data class Song(
     @Ignore
     var isSelected: Boolean = false
     override fun toString(): String {
-        return String.format("ID: %d - Title: %s - Artist: %s - Duration: %d - Path: %s", id, title, artist, duration, path)
+        return String.format("ID: %d - Title: %s - Artist: %s - Duration: %d - Album: %s - Track: %d - Size: %d - Path: %s", id, title, artist, duration, album, track, size, path)
     }
 }

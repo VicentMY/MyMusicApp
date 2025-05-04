@@ -40,8 +40,10 @@ import es.vmy.musicapp.utils.CHAT_COLOR_SELF_KEY
 import es.vmy.musicapp.utils.CHAT_USERNAME_KEY
 import es.vmy.musicapp.utils.LAST_SONG_KEY
 import es.vmy.musicapp.utils.PREFERENCES_FILE
+import es.vmy.musicapp.utils.RELOAD_MUSIC_KEY
 import es.vmy.musicapp.utils.USER_EMAIL_KEY
 import es.vmy.musicapp.utils.idToSongList
+import es.vmy.musicapp.utils.formatTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -71,10 +73,10 @@ class MainActivity : AppCompatActivity(),
         override fun run() {
             // Checks if the MediaPlayer is initialized and playing
             if (::music.isInitialized && music.isPlaying) {
-                val currentTimePosition = music.currentPosition
-                val duration = music.duration
+                val currentTimePosition = music.currentPosition.toLong()
+                val duration = music.duration.toLong()
 
-                val progress = (music.currentPosition * 100) / duration
+                val progress = ((music.currentPosition * 100) / duration).toInt()
                 val currentTime = formatTime(currentTimePosition)
                 val totalTime = formatTime(duration)
 
@@ -224,6 +226,13 @@ class MainActivity : AppCompatActivity(),
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
 
+        if (prefs.getBoolean(RELOAD_MUSIC_KEY, false)) {
+            Toast.makeText(this@MainActivity, getString(R.string.reloading_music), Toast.LENGTH_SHORT).show()
+
+            startActivity(Intent(this@MainActivity, SplashActivity::class.java))
+            finish()
+        }
+
         // Stops the Runnable that updates the SeekBar when changing fragments
         handler.removeCallbacks(updateSeekBarRunnable)
 
@@ -289,6 +298,7 @@ class MainActivity : AppCompatActivity(),
                         remove(CHAT_USERNAME_KEY)
                         remove(CHAT_COLOR_SELF_KEY)
                         remove(CHAT_COLOR_OTHER_KEY)
+                        apply()
                     }
 
                     val user = prefs.getString(USER_EMAIL_KEY, "") ?: ""
@@ -395,13 +405,6 @@ class MainActivity : AppCompatActivity(),
         handler.post(updateSeekBarRunnable)
     }
     //
-
-    private fun formatTime(mSec: Int): String {
-        // Calculates the minutes and seconds of the song
-        val min = (mSec / 1000) / 60
-        val sec = (mSec / 1000) % 60
-        return String.format("%02d:%02d", min, sec)
-    }
 
     // Playlists
     override fun onPlaylistSelected(p: Playlist) {

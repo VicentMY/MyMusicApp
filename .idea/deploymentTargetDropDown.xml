@@ -16,7 +16,17 @@
             </Target>
           </targetSelectedWithDropDown>
           <timeTargetWasSelectedWithDropDown value="2025-04-25T16:28:22.461919208Z" />
+          <multipleDevicesSelectedInDropDown value="true" />
           <runningDeviceTargetsSelectedWithDialog>
+            <Target>
+              <type value="RUNNING_DEVICE_TARGET" />
+              <deviceKey>
+                <Key>
+                  <type value="VIRTUAL_DEVICE_PATH" />
+                  <value value="$USER_HOME$/.android/avd/Pixel_3a_API_35.avd" />
+                </Key>
+              </deviceKey>
+            </Target>
             <Target>
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>

@@ -10,11 +10,13 @@
         <EditTextPreference
             app:key="chat_color_self"
             app:title="@string/chat_color_self"
+            app:singleLineTitle="false"
             app:useSimpleSummaryProvider="true" />
 
         <EditTextPreference
             app:key="chat_color_other"
             app:title="@string/chat_color_other"
+            app:singleLineTitle="false"
             app:useSimpleSummaryProvider="true" />
 
 
@@ -25,6 +27,11 @@
         <SwitchPreferenceCompat
             app:key="offline_mode"
             app:title="@string/cache_storage_title" />
+
+        <SwitchPreferenceCompat
+            app:key="reload_music"
+            app:title="@string/reload_music"
+            app:singleLineTitle="false" />
 
     </PreferenceCategory>
 

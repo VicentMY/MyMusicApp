@@ -82,4 +82,13 @@
     <string name="skip_to_next_song_btn_cont_desc">Botón avanzar canción</string>
     <string name="back_to_playlists_button">Botón volver a playlists</string>
     <string name="play_btn_cont_desc">Botón reproducir</string>
+    <string name="reload_music">Volver a cargar la lista de canciones</string>
+    <string name="reloading_music">¡Volviendo a cargar música!</string>
+    <string name="album_title_text">Álbum</string>
+    <string name="duration_title_text">Duración</string>
+    <string name="track_num_title_text">Número de pista</string>
+    <string name="size_title_text">Tamaño</string>
+    <string name="path_title_text">Ruta</string>
+    <string name="sd_card_prefix">/Tarjeta SD/</string>
+    <string name="internal_storage_prefix">/Almacenamiento Interno/</string>
 </resources>

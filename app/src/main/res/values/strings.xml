@@ -92,4 +92,13 @@
     <string name="skip_to_previous_song_btn_cont_desc">Skip to previous song button</string>
     <string name="skip_to_next_song_btn_cont_desc">Skip to next song button</string>
     <string name="back_to_playlists_button">Back to playlists button</string>
+    <string name="reload_music">Reload song list</string>
+    <string name="reloading_music">Reloading music!</string>
+    <string name="album_title_text">Album</string>
+    <string name="duration_title_text">Duration</string>
+    <string name="track_num_title_text">Track number</string>
+    <string name="size_title_text">Size</string>
+    <string name="path_title_text">Path</string>
+    <string name="sd_card_prefix">/SD Card/</string>
+    <string name="internal_storage_prefix">/Internal Storage/</string>
 </resources>

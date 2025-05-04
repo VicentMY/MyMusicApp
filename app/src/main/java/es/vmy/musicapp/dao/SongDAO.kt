@@ -18,7 +18,7 @@ interface SongDAO {
     suspend fun findById(id: Long): Song
 
     @Query("SELECT * FROM songs WHERE title LIKE :name LIMIT 1")
-    suspend fun findByName(name: String): Song
+    suspend fun findByName(name: String): Song?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertMany(songs: MutableList<Song>)

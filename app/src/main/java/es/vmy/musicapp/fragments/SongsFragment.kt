@@ -5,13 +5,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import es.vmy.musicapp.activities.MainActivity
 import es.vmy.musicapp.adapters.SongsAdapter
 import es.vmy.musicapp.classes.Song
 import es.vmy.musicapp.databinding.FragmentSongsBinding
+import es.vmy.musicapp.dialogs.TrackInfoDialog
 import es.vmy.musicapp.utils.LISTENER_EX_MSG
 
 class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListener {
@@ -74,8 +74,8 @@ class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListen
     }
 
     override fun onSongLongClick(position: Int) {
-        // TODO: Show dialog with track info
-        Toast.makeText(requireContext(), "Track info", Toast.LENGTH_SHORT).show()
+        // Shows a dialog with the track's info
+        TrackInfoDialog(songs.get(position)).show(parentFragmentManager, "TRACK INFO DIALOG")
     }
 
     interface SongsFragmentListener {

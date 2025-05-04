@@ -7,11 +7,11 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.media.MediaMetadataRetriever
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
@@ -19,6 +19,8 @@ import es.vmy.musicapp.R
 import es.vmy.musicapp.classes.AppDB
 import es.vmy.musicapp.classes.Song
 import es.vmy.musicapp.databinding.ActivitySplashBinding
+import es.vmy.musicapp.utils.PREFERENCES_FILE
+import es.vmy.musicapp.utils.RELOAD_MUSIC_KEY
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,6 +31,10 @@ import kotlin.concurrent.schedule
 class SplashActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySplashBinding
+
+    private val db by lazy { AppDB.getInstance(this@SplashActivity) }
+
+    private val prefs by lazy { getSharedPreferences(PREFERENCES_FILE, MODE_PRIVATE) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,9 +72,7 @@ class SplashActivity : AppCompatActivity() {
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode == PERMISSION_REQUEST_CODE && grantResults.isNotEmpty()) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED &&
-                // If more than one permission is requested, checks if the second one is granted
-                (grantResults.size > 1 && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 storeSongsInDB()
             } else {
                 Toast.makeText(this, getString(R.string.perm_denied_msg), Toast.LENGTH_LONG).show()
@@ -89,14 +93,16 @@ class SplashActivity : AppCompatActivity() {
 
     private fun storeSongsInDB() {
         lifecycleScope.launch(Dispatchers.IO) {
-
-            val db = AppDB.getInstance(this@SplashActivity).SongDAO()
             // Retrieves the songs stored in the database
-            val songs = db.getAll()
+            val songs = db.SongDAO().getAll()
 
-            if (songs.isEmpty()) {
-                // If the database is empty, retrieves the songs from the device and stores them
-                db.insertMany( getSongsFromDevice() )
+            if (songs.isEmpty() || prefs.getBoolean(RELOAD_MUSIC_KEY, false)) {
+                // If the database is empty or a reload is requested, retrieves the songs from the device and stores them
+                with(prefs.edit()) {
+                    putBoolean(RELOAD_MUSIC_KEY, false)
+                    apply()
+                }
+                db.SongDAO().insertMany( getSongsFromDevice() )
             }
 
             withContext(Dispatchers.Main) {
@@ -111,7 +117,10 @@ class SplashActivity : AppCompatActivity() {
             MediaStore.Audio.Media.DATA,
             MediaStore.Audio.Media.DURATION,
             MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ARTIST
+            MediaStore.Audio.Media.ARTIST,
+            MediaStore.Audio.Media.ALBUM,
+            MediaStore.Audio.Media.TRACK,
+            MediaStore.Audio.Media.SIZE,
         )
         val contentUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
 
@@ -138,6 +147,9 @@ class SplashActivity : AppCompatActivity() {
             val durationColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
             val titleColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
             val artistColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
+            val albumColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM)
+            val trackColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TRACK)
+            val sizeColumn = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
 
             val placeHolderBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_action_song)
 
@@ -155,14 +167,13 @@ class SplashActivity : AppCompatActivity() {
                     ))
                 ) {
 
-                    val duration = cursor.getLong(durationColumn)
                     val title = cursor.getString(titleColumn)
+                    val artist = if (cursor.getString(artistColumn) == "<unknown>") getString(R.string.unknown_artist) else cursor.getString(artistColumn)
+                    val album = cursor.getString(albumColumn)
+                    val duration = cursor.getLong(durationColumn)
+                    val track = if (cursor.getInt(trackColumn) == 0) 0 else cursor.getInt(trackColumn)
+                    val size = cursor.getLong(sizeColumn)
 
-                    val artist = if (cursor.getString(artistColumn) == "<unknown>") {
-                        getString(R.string.unknown_artist)
-                    } else {
-                        cursor.getString(artistColumn)
-                    }
                     val songArt = getAlbumArt(path)
                     // Creates a Bitmap of the song's thumbnail and stores it into 'thumbnail'
                     val thumbnail = if (songArt != null) {
@@ -171,8 +182,22 @@ class SplashActivity : AppCompatActivity() {
                         placeHolderBitmap
                     }
 
-                    // Creates a Song object with the retrieved data and adds it to the list
-                    songList.add( Song(title, thumbnail, artist, duration, path) )
+                    lifecycleScope.launch(Dispatchers.IO) {
+                        val result = db.SongDAO().findByName(title)
+
+                        if (result != null) {
+                            val updatedSong = Song(title, thumbnail, artist, duration, album, track, size, path, result.id)
+                            // Updates the Song object if it does exist in the db with the retrieved data
+                            db.SongDAO().update(updatedSong)
+                        }
+
+                        withContext(Dispatchers.Main) {
+                            if (result == null) {
+                                // Creates the Song object (if it does not exist in the db) with the retrieved data and adds it to the list
+                                songList.add( Song(title, thumbnail, artist, duration, album, track, size, path) )
+                            }
+                        }
+                    }
                 }
             }
         }
