@@ -91,4 +91,13 @@
     <string name="path_title_text">Ruta</string>
     <string name="sd_card_prefix">/Tarjeta SD/</string>
     <string name="internal_storage_prefix">/Almacenamiento Interno/</string>
+    <string name="shuffle_btn_cont_desc">Botón reproducción aleatoria</string>
+    <string name="favorite_btn_cont_desc">Botón marcar como favorita</string>
+    <string name="repeat_btn_cont_desc">Botón repetir reproducción</string>
+    <string name="info_btn_cont_desc">Botón obtener información de la pista</string>
+    <string name="show_playlist_btn_cont_desc">Botón mostrar playlist actual</string>
+    <string name="favorites_playlist_title">Pistas favoritas</string>
+    <string name="cannot_delete_fav_playlist">No puedes quitar la playlist de favoritas</string>
+    <string name="cannot_man_add_fav_songs">Solo puedes añadir canciones a través del reproductor</string>
+    <string name="no_songs">No se han encontrado canciones</string>
 </resources>

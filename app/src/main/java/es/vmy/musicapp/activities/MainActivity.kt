@@ -7,8 +7,10 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
@@ -35,18 +37,17 @@ import es.vmy.musicapp.fragments.PlaylistsFragment
 import es.vmy.musicapp.fragments.SettingsFragment
 import es.vmy.musicapp.fragments.SongsFragment
 import es.vmy.musicapp.utils.AuthManager
-import es.vmy.musicapp.utils.CHAT_COLOR_OTHER_KEY
-import es.vmy.musicapp.utils.CHAT_COLOR_SELF_KEY
-import es.vmy.musicapp.utils.CHAT_USERNAME_KEY
+import es.vmy.musicapp.utils.FAVORITE_SONGS_LIST_ID
 import es.vmy.musicapp.utils.LAST_SONG_KEY
+import es.vmy.musicapp.utils.LOG_TAG
 import es.vmy.musicapp.utils.PREFERENCES_FILE
 import es.vmy.musicapp.utils.RELOAD_MUSIC_KEY
-import es.vmy.musicapp.utils.USER_EMAIL_KEY
-import es.vmy.musicapp.utils.idToSongList
 import es.vmy.musicapp.utils.formatTime
+import es.vmy.musicapp.utils.idToSongList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 
 class MainActivity : AppCompatActivity(),
     NavigationView.OnNavigationItemSelectedListener,
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity(),
 
     private lateinit var music: MediaPlayer
     private var songs: MutableList<Song> = mutableListOf()
-    private lateinit var currentSong: Song
+    private var currentSong: Song? = null
     private lateinit var selectedPlaylist: Playlist
 
     private val db by lazy { AppDB.getInstance(this@MainActivity) }
@@ -103,7 +104,7 @@ class MainActivity : AppCompatActivity(),
         return songs
     }
 
-    fun getCurrentSong(): Song {
+    fun getCurrentSong(): Song? {
         return currentSong
     }
 
@@ -135,18 +136,30 @@ class MainActivity : AppCompatActivity(),
 
             // Sets the last played song as the current song
             songs.forEach {
-                if (it.id == lastSongId) {
+                if (!File(it.path).exists()) {
+                    Log.w(LOG_TAG, "Invalid path for song: ${it.title}")
+                    db.SongDAO().delete(it)
+
+                } else if (it.id == lastSongId) {
                     currentSong = it
                 }
             }
 
+            songs = db.SongDAO().getAll()
+
             withContext(Dispatchers.Main) {
+                music = if (currentSong != null) {
+                    MediaPlayer.create(this@MainActivity, Uri.parse(currentSong!!.path))
+                } else {
+                    MediaPlayer()
+                }
+
                 binding.musicProgressBar.visibility = View.GONE
+
                 supportFragmentManager.commit {
                     replace<PlayerFragment>(R.id.mainContView)
                     setReorderingAllowed(true)
                 }
-                music = MediaPlayer.create(this@MainActivity, Uri.parse(currentSong.path))
             }
         }
     }
@@ -154,10 +167,12 @@ class MainActivity : AppCompatActivity(),
     override fun onDestroy() {
         super.onDestroy()
 
-        // Stores the last played song in the SharedPreferences before closing the MainActivity
-        with(prefs.edit()) {
-            putLong(LAST_SONG_KEY, currentSong.id)
-            apply()
+        if (currentSong != null) {
+            // Stores the last played song in the SharedPreferences before closing the MainActivity
+            with(prefs.edit()) {
+                putLong(LAST_SONG_KEY, currentSong!!.id)
+                apply()
+            }
         }
 
         // Stops the Runnable that updates the SeekBar, stops the MediaPlayer and releases it before closing the MainActivity
@@ -276,39 +291,12 @@ class MainActivity : AppCompatActivity(),
                 // If the user is not logged in, then goes to LoginActivity first
                 if (user == null) {
                     startActivity(Intent(this@MainActivity, LoginActivity::class.java))
-                }
-                // Then opens the ChatFragment
-                supportFragmentManager.commit {
-                    replace<ChatFragment>(R.id.mainContView)
-                    setReorderingAllowed(true)
-                    changeMenuSelection(item)
-                }
-                true
-            }
-            R.id.nav_logout -> {
-                changeMenuSelection(item)
-
-                // If the user is logged in, then logs out, if not nothing happens
-                val currentUser = AuthManager().getCurrentUser()
-                if (currentUser != null) {
-                    // Closes the Firebase session
-                    AuthManager().logOut()
-                    // Removes the username and colors from the SharedPreferences
-                    with(prefs.edit()) {
-                        remove(CHAT_USERNAME_KEY)
-                        remove(CHAT_COLOR_SELF_KEY)
-                        remove(CHAT_COLOR_OTHER_KEY)
-                        apply()
-                    }
-
-                    val user = prefs.getString(USER_EMAIL_KEY, "") ?: ""
-                    Toast.makeText(this, getString(R.string.logout_message) + user, Toast.LENGTH_SHORT).show()
-
-                    // Jumps to the PlayerFragment to prevent the ChatFragment from being already open
+                } else {
+                    // Then opens the ChatFragment
                     supportFragmentManager.commit {
-                        replace<PlayerFragment>(R.id.mainContView)
+                        replace<ChatFragment>(R.id.mainContView)
                         setReorderingAllowed(true)
-                        changeMenuSelection(binding.navigationView.menu.getItem(0))
+                        changeMenuSelection(item)
                     }
                 }
                 true
@@ -346,7 +334,7 @@ class MainActivity : AppCompatActivity(),
         }
 
         // Shows a Snackbar if the current song is the first or last song in the list
-        if (err) {
+        if (err or songs.isEmpty()) {
             val msg = if (forward) {
                 getString(R.string.already_last_msg)
             } else {
@@ -368,9 +356,13 @@ class MainActivity : AppCompatActivity(),
                 music.release()
             }
             // Creates a new MediaPlayer with the selected song and starts playing it
-            music = MediaPlayer.create(this, Uri.parse(currentSong.path))
-            music.start()
-            handler.post(updateSeekBarRunnable)
+            if (currentSong != null) {
+                music = MediaPlayer.create(this@MainActivity, Uri.parse(currentSong!!.path))
+                music.start()
+                handler.post(updateSeekBarRunnable)
+            } else {
+                music = MediaPlayer()
+            }
 
             // Sets the pause button to the Play/Pause button
             fab?.setImageResource(R.drawable.ic_action_pause)
@@ -382,12 +374,38 @@ class MainActivity : AppCompatActivity(),
         val seekToPosition = (music.duration * progress) / 100
         music.seekTo(seekToPosition)
     }
+
+    override fun onFavoriteSong(favoriteBtn: ImageView, song: Song) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val favoritePlaylist = db.PlaylistDAO().findById(FAVORITE_SONGS_LIST_ID)!!
+
+            song.favorite = !song.favorite
+            db.SongDAO().update(song)
+
+            if (song.favorite) {
+                favoritePlaylist.songs.add(song.id)
+            } else {
+                favoritePlaylist.songs.remove(song.id)
+            }
+
+            db.PlaylistDAO().update(favoritePlaylist)
+
+            withContext(Dispatchers.Main) {
+                if (song.favorite) {
+                    favoriteBtn.setImageResource(R.drawable.ic_action_favorite_on)
+                } else {
+                    favoriteBtn.setImageResource(R.drawable.ic_action_favorite)
+                }
+            }
+        }
+    }
     //
 
     // Songs
-    override fun onSongSelected(song: Song) {
+    override fun onSongSelected(song: Song, songList: MutableList<Song>) {
         // Sets the selected song as the current song
         currentSong = song
+        songs = songList
         // Stops the previous song and releases the MediaPlayer
         music.stop()
         music.release()
@@ -411,7 +429,7 @@ class MainActivity : AppCompatActivity(),
 
         lifecycleScope.launch(Dispatchers.IO) {
 
-            selectedPlaylist = db.PlaylistDAO().findById(p.id)
+            selectedPlaylist = db.PlaylistDAO().findById(p.id)!!
 
             withContext(Dispatchers.Main) {
                 supportFragmentManager.commit {

@@ -3,20 +3,23 @@ package es.vmy.musicapp.fragments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import es.vmy.musicapp.R
-import es.vmy.musicapp.activities.MainActivity
 import es.vmy.musicapp.adapters.SongsAdapter
+import es.vmy.musicapp.classes.AppDB
 import es.vmy.musicapp.classes.Song
 import es.vmy.musicapp.databinding.FragmentAddSongPlaylistBinding
 import es.vmy.musicapp.utils.LISTENER_EX_MSG
-import es.vmy.musicapp.utils.LOG_TAG
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class AddSongPlaylistFragment : Fragment(),
     OnClickListener,
@@ -28,7 +31,7 @@ class AddSongPlaylistFragment : Fragment(),
     private lateinit var mAdapter: SongsAdapter
     private var mListener: AddSongPlaylistFragmentListener? = null
 
-    private lateinit var mainActivity: MainActivity
+    private val db by lazy { AppDB.getInstance(requireContext()) }
     private lateinit var songs: MutableList<Song>
 
     private var songSelection = mutableListOf<Song>()
@@ -49,9 +52,6 @@ class AddSongPlaylistFragment : Fragment(),
     ): View {
         _binding = FragmentAddSongPlaylistBinding.inflate(inflater, container, false)
 
-        mainActivity = activity as MainActivity
-        songs = mainActivity.getSongs()
-
         binding.btnAcceptSelection.setOnClickListener(this)
         binding.btnCancelSelection.setOnClickListener(this)
 
@@ -60,7 +60,20 @@ class AddSongPlaylistFragment : Fragment(),
 
     override fun onResume() {
         super.onResume()
-        setUpRecycler()
+        lifecycleScope.launch(Dispatchers.IO) {
+            binding.musicProgressBar.visibility = View.VISIBLE
+            songs = db.SongDAO().getAll()
+
+            withContext(Dispatchers.Main) {
+                binding.musicProgressBar.visibility = View.GONE
+
+                if (songs.isEmpty()) {
+                    binding.rvSongsSelection.visibility = View.GONE
+                    binding.tvNoSongsFound.visibility = View.VISIBLE
+                }
+                setUpRecycler()
+            }
+        }
     }
 
     override fun onDetach() {
@@ -82,11 +95,6 @@ class AddSongPlaylistFragment : Fragment(),
     override fun onClick(v: View) {
         when(v.id) {
             R.id.btn_accept_selection -> {
-
-                songSelection.forEach {
-                    Log.d(LOG_TAG, "${it.title}, ${it.thumbnail}")
-                }
-
                 mListener?.onAccept(songSelection)
             }
             R.id.btn_cancel_selection -> { mListener?.onCancel() }
@@ -118,4 +126,10 @@ class AddSongPlaylistFragment : Fragment(),
     override fun onSongLongClick(position: Int) {
         // Not used
     }
+
+    override fun onFavoriteSong(favoriteBtn: ImageView, song: Song) {
+        // Not used
+    }
+
+
 }

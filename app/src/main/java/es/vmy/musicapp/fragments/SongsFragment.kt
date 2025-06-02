@@ -5,14 +5,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import es.vmy.musicapp.activities.MainActivity
 import es.vmy.musicapp.adapters.SongsAdapter
+import es.vmy.musicapp.classes.AppDB
 import es.vmy.musicapp.classes.Song
 import es.vmy.musicapp.databinding.FragmentSongsBinding
 import es.vmy.musicapp.dialogs.TrackInfoDialog
 import es.vmy.musicapp.utils.LISTENER_EX_MSG
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListener {
 
@@ -22,8 +27,8 @@ class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListen
     private lateinit var mAdapter: SongsAdapter
     private var mListener: SongsFragmentListener? = null
 
-    // Retrieves the list of songs from the MainActivity
-    private lateinit var mainActivity: MainActivity
+    private val db by lazy { AppDB.getInstance(requireContext()) }
+
     private lateinit var songs: MutableList<Song>
 
     override fun onAttach(context: Context) {
@@ -42,15 +47,26 @@ class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListen
     ): View {
         _binding = FragmentSongsBinding.inflate(inflater, container, false)
 
-        mainActivity = activity as MainActivity
-        songs = mainActivity.getSongs()
-
         return binding.root
     }
 
     override fun onResume() {
         super.onResume()
-        setUpRecycler()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            binding.musicProgressBar.visibility = View.VISIBLE
+            songs = db.SongDAO().getAll()
+
+            withContext(Dispatchers.Main) {
+                binding.musicProgressBar.visibility = View.GONE
+
+                if (songs.isEmpty()) {
+                    binding.rvSongs.visibility = View.GONE
+                    binding.tvNoSongsFound.visibility = View.VISIBLE
+                }
+                setUpRecycler()
+            }
+        }
     }
 
     override fun onDetach() {
@@ -70,7 +86,7 @@ class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListen
     }
 
     override fun onSongClick(s: Song) {
-        mListener?.onSongSelected(s)
+        mListener?.onSongSelected(s, songs)
     }
 
     override fun onSongLongClick(position: Int) {
@@ -78,7 +94,12 @@ class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListen
         TrackInfoDialog(songs.get(position)).show(parentFragmentManager, "TRACK INFO DIALOG")
     }
 
+    override fun onFavoriteSong(favoriteBtn: ImageView, song: Song) {
+        mListener?.onFavoriteSong(favoriteBtn, song)
+    }
+
     interface SongsFragmentListener {
-        fun onSongSelected(song: Song)
+        fun onSongSelected(song: Song, songList: MutableList<Song>)
+        fun onFavoriteSong(favoriteBtn: ImageView, song: Song)
     }
 }

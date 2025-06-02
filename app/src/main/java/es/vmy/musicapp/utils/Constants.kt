@@ -14,5 +14,8 @@ const val CHAT_COLOR_OTHER_KEY = "chat_color_other"
 const val LAST_SONG_KEY = "last_song"
 const val OFFLINE_MODE_KEY = "offline_mode"
 const val RELOAD_MUSIC_KEY = "reload_music"
+const val CHAT_LOGOUT_KEY = "chat_logout"
 // Stored useful data
 const val USER_EMAIL_KEY = "user_email"
+// Playlists
+const val FAVORITE_SONGS_LIST_ID = 1L

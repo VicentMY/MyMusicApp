@@ -15,12 +15,13 @@ data class Song(
     val track: Int,
     val size: Long,
     val path: String,
+    var favorite: Boolean = false,
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0
 ) {
     @Ignore
     var isSelected: Boolean = false
     override fun toString(): String {
-        return String.format("ID: %d - Title: %s - Artist: %s - Duration: %d - Album: %s - Track: %d - Size: %d - Path: %s", id, title, artist, duration, album, track, size, path)
+        return String.format("ID: %d - Title: %s - Artist: %s - Duration: %d - Is Favorite: %s - Album: %s - Track: %d - Size: %d - Path: %s", id, title, artist, duration, favorite, album, track, size, path)
     }
 }

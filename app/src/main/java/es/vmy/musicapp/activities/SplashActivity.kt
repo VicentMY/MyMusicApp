@@ -17,8 +17,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import es.vmy.musicapp.R
 import es.vmy.musicapp.classes.AppDB
+import es.vmy.musicapp.classes.Playlist
 import es.vmy.musicapp.classes.Song
 import es.vmy.musicapp.databinding.ActivitySplashBinding
+import es.vmy.musicapp.utils.FAVORITE_SONGS_LIST_ID
 import es.vmy.musicapp.utils.PREFERENCES_FILE
 import es.vmy.musicapp.utils.RELOAD_MUSIC_KEY
 import kotlinx.coroutines.Dispatchers
@@ -53,6 +55,7 @@ class SplashActivity : AppCompatActivity() {
 
         if (ContextCompat.checkSelfPermission(this, musicPerm) == PackageManager.PERMISSION_GRANTED) {
             storeSongsInDB()
+            createFavoritePlaylist()
         } else {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -74,6 +77,7 @@ class SplashActivity : AppCompatActivity() {
         if (requestCode == PERMISSION_REQUEST_CODE && grantResults.isNotEmpty()) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 storeSongsInDB()
+                createFavoritePlaylist()
             } else {
                 Toast.makeText(this, getString(R.string.perm_denied_msg), Toast.LENGTH_LONG).show()
                 Timer().schedule(2000) {
@@ -89,6 +93,33 @@ class SplashActivity : AppCompatActivity() {
         binding.progressBar.visibility = View.GONE
         startActivity(Intent(this@SplashActivity, MainActivity::class.java))
         finish()
+    }
+
+    private fun createFavoritePlaylist() {
+        lifecycleScope.launch(Dispatchers.IO) {
+
+            var favoritePlaylist = db.PlaylistDAO().findById(FAVORITE_SONGS_LIST_ID)
+
+            if (favoritePlaylist == null) {
+
+                val favSongs: MutableList<Long> = mutableListOf()
+
+                db.SongDAO().getAll().forEach {
+                    if (it.favorite) {
+                        favSongs.add(it.id)
+                    }
+                }
+
+                favoritePlaylist = Playlist(
+                    getString(R.string.favorites_playlist_title),
+                    BitmapFactory.decodeResource(resources, R.drawable.ic_action_favorite_on),
+                    favSongs,
+                    FAVORITE_SONGS_LIST_ID
+                    )
+
+                db.PlaylistDAO().insert(favoritePlaylist)
+            }
+        }
     }
 
     private fun storeSongsInDB() {
@@ -186,7 +217,7 @@ class SplashActivity : AppCompatActivity() {
                         val result = db.SongDAO().findByName(title)
 
                         if (result != null) {
-                            val updatedSong = Song(title, thumbnail, artist, duration, album, track, size, path, result.id)
+                            val updatedSong = Song(title, thumbnail, artist, duration, album, track, size, path, result.favorite, result.id)
                             // Updates the Song object if it does exist in the db with the retrieved data
                             db.SongDAO().update(updatedSong)
                         }

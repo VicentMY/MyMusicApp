@@ -19,6 +19,13 @@
             app:singleLineTitle="false"
             app:useSimpleSummaryProvider="true" />
 
+        <SwitchPreferenceCompat
+            app:key="chat_logout"
+            app:title="@string/nav_logout"
+            app:singleLineTitle="false"
+            app:defaultValue="false" />
+
+
 
     </PreferenceCategory>
 

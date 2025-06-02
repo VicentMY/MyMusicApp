@@ -7,6 +7,28 @@
     tools:context=".fragments.SongsFragment">
 
     <ImageView
+        android:id="@+id/btn_show_playlist"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/ic_action_show_list"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/show_playlist_btn_cont_desc" />
+
+    <ImageView
+        android:id="@+id/btn_get_info"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="32dp"
+        android:src="@drawable/ic_action_get_info"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:contentDescription="@string/info_btn_cont_desc" />
+
+    <ImageView
         android:id="@+id/iv_song_thumbnail"
         android:layout_width="300dp"
         android:layout_height="300dp"
@@ -19,12 +41,27 @@
         app:layout_constraintTop_toTopOf="parent"
         android:contentDescription="@string/song_thumbnail_cont_desc" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_songs_player"
+        android:layout_width="0dp"
+        android:layout_height="300dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/rv_song_item"
+        tools:itemCount="3"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/tv_song_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:textSize="20sp"
+        android:text=""
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/iv_song_thumbnail" />
@@ -34,6 +71,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        android:text=""
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_song_title" />
@@ -58,18 +96,51 @@
         app:layout_constraintBottom_toTopOf="@id/seekBar"
         tools:ignore="HardcodedText" />
 
+    <ImageView
+        android:id="@+id/btn_shuffle"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_action_shuffle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_song_artist"
+        android:contentDescription="@string/shuffle_btn_cont_desc" />
+
+    <ImageView
+        android:id="@+id/btn_favorite"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_action_favorite"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_song_artist"
+        android:contentDescription="@string/favorite_btn_cont_desc" />
+
+    <ImageView
+        android:id="@+id/btn_repeat"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/ic_action_repeat"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_song_artist"
+        android:contentDescription="@string/repeat_btn_cont_desc" />
+
     <SeekBar
         android:id="@+id/seekBar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
         android:layout_marginTop="32dp"
+        android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:max="100"
         android:progress="0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_song_artist" />
+        app:layout_constraintTop_toBottomOf="@id/btn_favorite" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_play"

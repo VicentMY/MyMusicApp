@@ -101,4 +101,13 @@
     <string name="path_title_text">Path</string>
     <string name="sd_card_prefix">/SD Card/</string>
     <string name="internal_storage_prefix">/Internal Storage/</string>
+    <string name="shuffle_btn_cont_desc">Shuffle button</string>
+    <string name="favorite_btn_cont_desc">Favorite button</string>
+    <string name="repeat_btn_cont_desc">Repeat button</string>
+    <string name="info_btn_cont_desc">Get track info button</string>
+    <string name="show_playlist_btn_cont_desc">Show current playlist button</string>
+    <string name="favorites_playlist_title">Favorite Tracks</string>
+    <string name="cannot_delete_fav_playlist">You cannot delete the favorites playlist</string>
+    <string name="cannot_man_add_fav_songs">You can only add songs through the Player</string>
+    <string name="no_songs">No songs found</string>
 </resources>

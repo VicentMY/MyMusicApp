@@ -19,6 +19,19 @@
         tools:srcCompat="@drawable/ic_action_song"
         android:contentDescription="@string/song_thumbnail_cont_desc" />
 
+    <ImageView
+        android:id="@+id/iv_btn_favorite"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/ic_action_favorite"
+        android:contentDescription="@string/favorite_btn_cont_desc" />
+
     <TextView
         android:id="@+id/tv_song_title"
         android:layout_width="0dp"
@@ -31,7 +44,7 @@
         android:text="@string/nav_songs"
         android:textSize="20sp"
         android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_btn_favorite"
         app:layout_constraintStart_toEndOf="@+id/iv_song_thumbnail"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -46,7 +59,7 @@
         android:maxLines="1"
         android:text="@string/nav_songs"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_btn_favorite"
         app:layout_constraintStart_toEndOf="@+id/iv_song_thumbnail" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

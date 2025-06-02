@@ -32,6 +32,7 @@ class SongsAdapter(
     class SongViewHolder(v: View, mContext: Context, private val mListener: SongsAdapterListener): RecyclerView.ViewHolder(v) {
 
         private val songView: ConstraintLayout = v.findViewById(R.id.song_layout)
+        private val favoriteBtn: ImageView = v.findViewById(R.id.iv_btn_favorite)
         private val thumbnail: ImageView = v.findViewById(R.id.iv_song_thumbnail)
         private val title: TextView = v.findViewById(R.id.tv_song_title)
         private val artist: TextView = v.findViewById(R.id.tv_song_artist)
@@ -48,6 +49,12 @@ class SongsAdapter(
             title.text = s.title
             artist.text = s.artist
 
+            if (s.favorite) {
+                favoriteBtn.setImageResource(R.drawable.ic_action_favorite_on)
+            } else {
+                favoriteBtn.setImageResource(R.drawable.ic_action_favorite)
+            }
+
             songView.setBackgroundColor(
                 if (s.isSelected) selectedBGColor else normalBGColor
             )
@@ -60,11 +67,16 @@ class SongsAdapter(
                 mListener.onSongLongClick(position)
                 true
             }
+
+            favoriteBtn.setOnClickListener {
+                mListener.onFavoriteSong(favoriteBtn, s)
+            }
         }
 
         interface SongsAdapterListener {
             fun onSongClick(s: Song)
             fun onSongLongClick(position: Int)
+            fun onFavoriteSong(favoriteBtn: ImageView, song: Song)
         }
     }
 }

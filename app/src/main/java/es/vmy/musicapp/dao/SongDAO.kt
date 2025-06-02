@@ -15,7 +15,7 @@ interface SongDAO {
     suspend fun getAll(): MutableList<Song>
 
     @Query("SELECT * FROM songs WHERE id = :id")
-    suspend fun findById(id: Long): Song
+    suspend fun findById(id: Long): Song?
 
     @Query("SELECT * FROM songs WHERE title LIKE :name LIMIT 1")
     suspend fun findByName(name: String): Song?

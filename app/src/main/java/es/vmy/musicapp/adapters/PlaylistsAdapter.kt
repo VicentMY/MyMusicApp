@@ -6,11 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat.getString
 import androidx.recyclerview.widget.RecyclerView
 import es.vmy.musicapp.R
 import es.vmy.musicapp.classes.Playlist
+import es.vmy.musicapp.utils.FAVORITE_SONGS_LIST_ID
 
 class PlaylistsAdapter(
     val items: MutableList<Playlist>,
@@ -38,11 +40,16 @@ class PlaylistsAdapter(
         private val trackAmount: TextView = v.findViewById(R.id.tv_playlist_track_amount)
 
         fun bindItem(p: Playlist) {
-            if (p.thumbnail != null) {
+            if (p.id == FAVORITE_SONGS_LIST_ID) {
+                thumbnail.setImageResource(R.drawable.ic_action_favorite_on)
+
+            } else if (p.thumbnail != null) {
                 thumbnail.setImageBitmap(p.thumbnail)
+
             } else {
                 thumbnail.setImageResource(R.drawable.ic_action_playlist)
             }
+
             title.text = p.title
             trackAmount.text = String.format("%d %s", p.songs.size, getString(mContext, R.string.tracks))
 
@@ -51,7 +58,12 @@ class PlaylistsAdapter(
             }
 
             playlistView.setOnLongClickListener {
-                mListener.onPlaylistLongClick(p)
+                if (p.id == FAVORITE_SONGS_LIST_ID) {
+                    Toast.makeText(mContext, getString(mContext, R.string.cannot_delete_fav_playlist), Toast.LENGTH_SHORT).show()
+                } else {
+                    mListener.onPlaylistLongClick(p)
+                }
+
                 true
             }
         }
