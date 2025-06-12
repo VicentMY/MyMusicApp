@@ -13,8 +13,8 @@ class DeletePlaylistDialog(private val playlist: Playlist, private val mListener
         return activity?.let {
             val builder = AlertDialog.Builder(it)
             builder
-                .setTitle(getString(R.string.dialog_delete_playlist_title))
-                .setMessage(getString(R.string.dialog_delete_playlist_message))
+                .setTitle("${getString(R.string.dialog_delete_playlist_title)} ${playlist.title}")
+                .setMessage("${getString(R.string.dialog_delete_playlist_message_1)} ${playlist.title}? ${getString(R.string.dialog_delete_playlist_message_2)}")
                 .setPositiveButton(getString(R.string.dialog_confirm)) { dialog, id ->
                     mListener.onPlaylistRemove(playlist)
                     dismiss()

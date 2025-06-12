@@ -78,7 +78,8 @@
     <string name="playlist_name_field">Playlist name</string>
     <string name="playlist_created">Playlist created!</string>
     <string name="dialog_delete_playlist_title">Delete Playlist</string>
-    <string name="dialog_delete_playlist_message">Are you sure you want to delete this playlist? Once deleted it cannot be recovered.</string>
+    <string name="dialog_delete_playlist_message_1">Are you sure you want to delete</string>
+    <string name="dialog_delete_playlist_message_2">Once deleted it cannot be recovered.</string>
     <string name="playlist_deleted_correctly">Playlist deleted correctly</string>
     <string name="err_removing_playlist">Error deleting playlist</string>
     <string name="dialog_create">Create</string>
@@ -110,4 +111,5 @@
     <string name="cannot_delete_fav_playlist">You cannot delete the favorites playlist</string>
     <string name="cannot_man_add_fav_songs">You can only add songs through the Player</string>
     <string name="no_songs">No songs found</string>
+    <string name="dialog_rename_playlist_title">Rename playlist</string>
 </resources>

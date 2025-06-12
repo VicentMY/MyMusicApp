@@ -18,7 +18,7 @@ class RenamePlaylistDialog(private val mListener: RenamePlaylistDialogListener, 
 
             val builder = AlertDialog.Builder(it)
                 .setView(view)
-                .setTitle(getString(R.string.dialog_create_playlist_title))
+                .setTitle(getString(R.string.dialog_rename_playlist_title))
                 .setPositiveButton(getString(R.string.dialog_rename)) { dialog, id ->
                     val playlistName = editText.text.toString()
                     mListener.onRenamePlaylist(playlistName)

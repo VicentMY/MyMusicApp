@@ -1,6 +1,7 @@
 package es.vmy.musicapp.adapters
 
 import android.content.Context
+import android.content.res.Resources
 import android.graphics.Color
 import androidx.core.graphics.ColorUtils
 import android.view.Gravity
@@ -61,6 +62,9 @@ class ChatAdapter(
         private val colorTertiary = mContext.getColor(R.color.md_theme_tertiary)
 
         fun bindItem(msg: ChatMessage) {
+
+            messageCv.minimumWidth = Resources.getSystem().displayMetrics.widthPixels / 3
+            senderTv.minimumWidth = Resources.getSystem().displayMetrics.widthPixels / 3
 
             // Makes sure the chat colors are preceded by '#' to avoid unwanted exceptions
             if (!selfChatColor.startsWith("#")) {
@@ -131,8 +135,9 @@ class ChatAdapter(
             timeTv.text = if (msg.timestamp != null) instantToFormattedString(msg.timestamp) else ""
 
             // Adds the delete message listener
-            messageCv.setOnClickListener {
+            messageCv.setOnLongClickListener {
                 mListener.onDeleteChatMessage(msg, userEmail == msg.senderEmail)
+                true
             }
         }
 

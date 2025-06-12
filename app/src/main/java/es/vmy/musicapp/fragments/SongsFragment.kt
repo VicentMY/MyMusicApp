@@ -6,9 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.PopupMenu
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import es.vmy.musicapp.R
 import es.vmy.musicapp.adapters.SongsAdapter
 import es.vmy.musicapp.classes.AppDB
 import es.vmy.musicapp.classes.Song
@@ -89,9 +92,8 @@ class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListen
         mListener?.onSongSelected(s, songs)
     }
 
-    override fun onSongLongClick(position: Int) {
-        // Shows a dialog with the track's info
-        TrackInfoDialog(songs.get(position)).show(parentFragmentManager, "TRACK INFO DIALOG")
+    override fun onSongLongClick(position: Int, song: Song) {
+        performContextMenuClick(position, song)
     }
 
     override fun onFavoriteSong(favoriteBtn: ImageView, song: Song) {
@@ -101,5 +103,37 @@ class SongsFragment : Fragment(), SongsAdapter.SongViewHolder.SongsAdapterListen
     interface SongsFragmentListener {
         fun onSongSelected(song: Song, songList: MutableList<Song>)
         fun onFavoriteSong(favoriteBtn: ImageView, song: Song)
+    }
+
+    private  fun performContextMenuClick(position: Int, song: Song) {
+        val viewHolder = binding.rvSongs.findViewHolderForAdapterPosition(position)
+        if (viewHolder != null) {
+            val popupMenu = PopupMenu(
+                requireContext(),
+                viewHolder.itemView.findViewById(R.id.tv_song_title)
+            )
+
+            popupMenu.inflate(R.menu.song_context_menu)
+
+            popupMenu.menu[0].isVisible = false
+
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.action_remove_from_playlist -> {
+                        // Not used
+                        true
+                    }
+
+                    R.id.track_info -> {
+                        // Shows a dialog with the track's info
+                        TrackInfoDialog(song).show(parentFragmentManager, "TRACK INFO DIALOG")
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+            popupMenu.show()
+        }
     }
 }

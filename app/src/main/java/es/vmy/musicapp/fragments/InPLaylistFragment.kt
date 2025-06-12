@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnClickListener
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.core.view.get
@@ -21,6 +22,8 @@ import es.vmy.musicapp.classes.Playlist
 import es.vmy.musicapp.classes.Song
 import es.vmy.musicapp.databinding.FragmentInPlaylistBinding
 import es.vmy.musicapp.dialogs.RenamePlaylistDialog
+import es.vmy.musicapp.dialogs.TrackInfoDialog
+import es.vmy.musicapp.utils.FAVORITE_SONGS_LIST_ID
 import es.vmy.musicapp.utils.LISTENER_EX_MSG
 import es.vmy.musicapp.utils.idToSongList
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +43,6 @@ class InPlaylistFragment : Fragment(),
 
     private val db by lazy { AppDB.getInstance(requireContext()) }
 
-    // Retrieves list of songs from selectedPlaylist in MainActivity
     private lateinit var mainActivity: MainActivity
     private lateinit var songs: MutableList<Song>
 
@@ -66,14 +68,31 @@ class InPlaylistFragment : Fragment(),
 
         selectedPlaylist = mainActivity.getSelectedPlaylist()
 
-        songs = idToSongList(selectedPlaylist.songs, mainActivity.getSongs())
+        lifecycleScope.launch(Dispatchers.IO) {
+            binding.rvInPlaySongs.visibility = View.GONE
+            binding.musicProgressBar.visibility = View.VISIBLE
+
+            songs = idToSongList(selectedPlaylist.songs, db.SongDAO().getAll())
+
+            withContext(Dispatchers.Main) {
+                binding.musicProgressBar.visibility = View.GONE
+                binding.rvInPlaySongs.visibility = View.VISIBLE
+                setUpRecycler()
+            }
+        }
 
         binding.tvInPlaylistTitle.text = selectedPlaylist.title
 
-        if (selectedPlaylist.thumbnail != null) {
-            binding.ivInPlaylistThumbnail.setImageBitmap(selectedPlaylist.thumbnail)
+        if (selectedPlaylist.id == FAVORITE_SONGS_LIST_ID) {
+            binding.ivInPlaylistThumbnail.setImageResource(R.drawable.ic_action_favorite_on)
+            binding.addPlaylistFab.visibility = View.GONE
         } else {
-            binding.ivInPlaylistThumbnail.setImageResource(R.drawable.ic_action_playlist)
+            if (selectedPlaylist.thumbnail != null) {
+                binding.ivInPlaylistThumbnail.setImageBitmap(selectedPlaylist.thumbnail)
+            } else {
+                binding.ivInPlaylistThumbnail.setImageResource(R.drawable.ic_action_playlist)
+                binding.addPlaylistFab.visibility = View.VISIBLE
+            }
         }
 
         binding.tvInPlaylistTitle.setOnClickListener(this)
@@ -88,20 +107,26 @@ class InPlaylistFragment : Fragment(),
     override fun onClick(v: View) {
         when(v.id) {
             R.id.tv_in_playlist_title -> {
-                RenamePlaylistDialog(this@InPlaylistFragment, selectedPlaylist.title).show(parentFragmentManager, "RENAME PLAYLIST DIALOG")
+                if (selectedPlaylist.id != FAVORITE_SONGS_LIST_ID) {
+                    RenamePlaylistDialog(this@InPlaylistFragment, selectedPlaylist.title).show(parentFragmentManager, "RENAME PLAYLIST DIALOG")
+                }
             }
             R.id.iv_in_playlist_back -> {
                 mListener?.onBackBtnPressed()
             }
             R.id.add_playlist_fab -> {
-                mListener?.onSongAddFab()
+                if (selectedPlaylist.id == FAVORITE_SONGS_LIST_ID) {
+                    Toast.makeText(requireContext(), getString(R.string.cannot_man_add_fav_songs), Toast.LENGTH_SHORT).show()
+                } else {
+                    mListener?.onSongAddFab()
+                }
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-        setUpRecycler()
+        if (::mAdapter.isInitialized) mAdapter.notifyDataSetChanged()
     }
 
     override fun onDetach() {
@@ -121,39 +146,48 @@ class InPlaylistFragment : Fragment(),
     }
 
     override fun onSongClick(s: Song) {
-        mListener?.onSongSelected(s)
+        mListener?.onSongSelected(s, songs)
     }
 
-    override fun onSongLongClick(position: Int) {
-        performContextMenuClick(position)
+    override fun onSongLongClick(position: Int, song: Song) {
+        performContextMenuClick(position, song)
+    }
+
+    override fun onFavoriteSong(favoriteBtn: ImageView, song: Song) {
+        mListener?.onFavoriteSong(favoriteBtn, song)
     }
 
 
-    private  fun performContextMenuClick(position: Int) {
-        val popupMenu = PopupMenu(
-            requireContext(),
-            binding.rvInPlaySongs[position].findViewById(R.id.tv_song_title)
-        )
+    private  fun performContextMenuClick(position: Int, song: Song) {
+        val viewHolder = binding.rvInPlaySongs.findViewHolderForAdapterPosition(position)
+        if (viewHolder != null) {
+            val popupMenu = PopupMenu(
+                requireContext(),
+                viewHolder.itemView.findViewById(R.id.tv_song_title)
+            )
 
-        popupMenu.inflate(R.menu.song_context_menu)
+            popupMenu.inflate(R.menu.song_context_menu)
 
-        popupMenu.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.action_remove_from_playlist -> {
-                    removeSongFromPlaylist(position)
-                    true
+            popupMenu.menu[0].isEnabled = selectedPlaylist.id != FAVORITE_SONGS_LIST_ID
+
+            popupMenu.setOnMenuItemClickListener { item ->
+                when (item.itemId) {
+                    R.id.action_remove_from_playlist -> {
+                        removeSongFromPlaylist(songs.indexOf(song))
+                        true
+                    }
+
+                    R.id.track_info -> {
+                        // Shows a dialog with the track's info
+                        TrackInfoDialog(song).show(parentFragmentManager, "TRACK INFO DIALOG")
+                        true
+                    }
+
+                    else -> false
                 }
-
-                R.id.track_info -> {
-                    // TODO: Show track info
-                    Toast.makeText(requireContext(), "Show track info", Toast.LENGTH_SHORT).show()
-                    true
-                }
-
-                else -> false
             }
+            popupMenu.show()
         }
-        popupMenu.show()
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -187,9 +221,10 @@ class InPlaylistFragment : Fragment(),
     }
 
     interface InPlaylistFragmentListener {
-        fun onSongSelected(song: Song)
+        fun onSongSelected(song: Song, songList: MutableList<Song>)
         fun onBackBtnPressed()
         fun onSongAddFab()
+        fun onFavoriteSong(favoriteBtn: ImageView, song: Song)
     }
 
     override fun onRenamePlaylist(name: String) {

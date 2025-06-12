@@ -64,7 +64,7 @@ class SongsAdapter(
             }
 
             songView.setOnLongClickListener {
-                mListener.onSongLongClick(position)
+                mListener.onSongLongClick(position, s)
                 true
             }
 
@@ -75,7 +75,7 @@ class SongsAdapter(
 
         interface SongsAdapterListener {
             fun onSongClick(s: Song)
-            fun onSongLongClick(position: Int)
+            fun onSongLongClick(position: Int, song: Song)
             fun onFavoriteSong(favoriteBtn: ImageView, song: Song)
         }
     }

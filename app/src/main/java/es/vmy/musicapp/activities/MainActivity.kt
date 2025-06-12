@@ -11,7 +11,6 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -38,10 +37,10 @@ import es.vmy.musicapp.fragments.SettingsFragment
 import es.vmy.musicapp.fragments.SongsFragment
 import es.vmy.musicapp.utils.AuthManager
 import es.vmy.musicapp.utils.FAVORITE_SONGS_LIST_ID
+import es.vmy.musicapp.utils.LAST_PLAYLIST_KEY
 import es.vmy.musicapp.utils.LAST_SONG_KEY
 import es.vmy.musicapp.utils.LOG_TAG
 import es.vmy.musicapp.utils.PREFERENCES_FILE
-import es.vmy.musicapp.utils.RELOAD_MUSIC_KEY
 import es.vmy.musicapp.utils.formatTime
 import es.vmy.musicapp.utils.idToSongList
 import kotlinx.coroutines.Dispatchers
@@ -59,8 +58,14 @@ class MainActivity : AppCompatActivity(),
 
     private lateinit var binding: ActivityMainBinding
 
+    // Player variables
     private lateinit var music: MediaPlayer
+    private var shuffleOn: Boolean = false
+    private var repeatState: Int = 0
+    //
+
     private var songs: MutableList<Song> = mutableListOf()
+    private lateinit var originalSongs : MutableList<Song>
     private var currentSong: Song? = null
     private lateinit var selectedPlaylist: Playlist
 
@@ -70,7 +75,6 @@ class MainActivity : AppCompatActivity(),
     // Runnable that updates the SeekBar
     private val handler = Handler(Looper.getMainLooper())
     private val updateSeekBarRunnable = object : Runnable {
-
         override fun run() {
             // Checks if the MediaPlayer is initialized and playing
             if (::music.isInitialized && music.isPlaying) {
@@ -88,16 +92,46 @@ class MainActivity : AppCompatActivity(),
                 // Checks if the song has finished playing and skips to the next song
                 // Sometimes the MediaPlayer doesn't reach the end of the song, so it's set to -1000
                 if (currentTimePosition >= duration -1000) {
-                    skipPrevNext(true, null)
+                    when (repeatState) {
+                        0 -> skipPrevNext(true, null) // No repeat
+                        1 -> { //repeat playlist
+                            val currentPosition = songs.indexOf(currentSong)
+                            currentSong = if (currentPosition == songs.size -1) {
+                                songs[0]
+                            } else {
+                                songs[currentPosition +1]
+                            }
+                            playCurrentSong()
+                        }
+                        2 -> {// repeat current song
+                            music.seekTo(0)
+                            music.start()
+                        }
+
+                    }
                     playerFragment.updateFragment()
                 }
-
                 // Updates the SeekBar every second
                 handler.postDelayed(this, 1000)
             }
         }
     }
     //
+
+    // Helper method to play the current song
+    private fun playCurrentSong() {
+        if (::music.isInitialized && music.isPlaying) {
+            music.stop()
+            handler.removeCallbacks(updateSeekBarRunnable)
+        }
+        if (currentSong != null) {
+            music = MediaPlayer.create(this@MainActivity, Uri.parse(currentSong!!.path))
+            music.start()
+            handler.post(updateSeekBarRunnable)
+        } else {
+            music = MediaPlayer()
+        }
+    }
 
     // Gives access to player variables from other fragments
     fun getSongs(): MutableList<Song> {
@@ -116,6 +150,17 @@ class MainActivity : AppCompatActivity(),
         return music
     }
 
+    fun getShuffleState(): Boolean {
+        return shuffleOn
+    }
+
+    fun getRepeatState(): Int {
+        return repeatState
+    }
+    fun setRepeatState(state: Int) {
+        repeatState = state
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -128,11 +173,25 @@ class MainActivity : AppCompatActivity(),
 
         binding.musicProgressBar.visibility = View.VISIBLE
         lifecycleScope.launch(Dispatchers.IO) {
-            // Loads the list of songs
-            songs = db.SongDAO().getAll()
+            val songsDB = db.SongDAO().getAll()
 
-            // Loads the last played song when the app was closed
+            // Loads the last played song...
             val lastSongId = prefs.getLong(LAST_SONG_KEY, 1)
+            // Loads the last selected playlist...
+            val lastPlaylistId = prefs.getLong(LAST_PLAYLIST_KEY, -1L)
+            if (lastPlaylistId != -1L) {
+                selectedPlaylist = db.PlaylistDAO().findById(lastPlaylistId)!!
+                songs = idToSongList(selectedPlaylist.songs, songsDB)
+
+            } else {
+                songs = songsDB
+            }
+
+            //  ...when the app was closed
+
+            // Loads the list of songs
+
+            originalSongs = songs.toMutableList()
 
             // Sets the last played song as the current song
             songs.forEach {
@@ -144,8 +203,6 @@ class MainActivity : AppCompatActivity(),
                     currentSong = it
                 }
             }
-
-            songs = db.SongDAO().getAll()
 
             withContext(Dispatchers.Main) {
                 music = if (currentSong != null) {
@@ -241,13 +298,6 @@ class MainActivity : AppCompatActivity(),
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         binding.drawerLayout.closeDrawer(GravityCompat.START)
 
-        if (prefs.getBoolean(RELOAD_MUSIC_KEY, false)) {
-            Toast.makeText(this@MainActivity, getString(R.string.reloading_music), Toast.LENGTH_SHORT).show()
-
-            startActivity(Intent(this@MainActivity, SplashActivity::class.java))
-            finish()
-        }
-
         // Stops the Runnable that updates the SeekBar when changing fragments
         handler.removeCallbacks(updateSeekBarRunnable)
 
@@ -322,50 +372,74 @@ class MainActivity : AppCompatActivity(),
     }
 
     override fun skipPrevNext(forward: Boolean, fab: FloatingActionButton?) {
-        val currentPosition = songs.indexOf(currentSong)
-        var err = false
-
-        // Checks if the current song is the first or last song in the list
-        if (currentPosition == 0 && !forward) {
-            err = true
-        }
-        if (currentPosition == songs.size -1 && forward) {
-            err = true
-        }
-
-        // Shows a Snackbar if the current song is the first or last song in the list
-        if (err or songs.isEmpty()) {
+        var lastSongEndNoRepeat = false
+        // If there are no songs in the device
+        if (songs.isEmpty()) {
+            // Depending if we're skipping forward or backward
             val msg = if (forward) {
                 getString(R.string.already_last_msg)
             } else {
                 getString(R.string.already_first_msg)
             }
+            // Alert the user that there is no next / previous track
             Snackbar.make(binding.root, msg, Snackbar.LENGTH_SHORT).show()
+
+        // If there are songs
         } else {
-            // Set the next or previous song as the current song depending on the 'forward' boolean
-            currentSong = if (forward) {
-                songs[currentPosition +1]
-            } else {
-                songs[currentPosition -1]
-            }
+            val currentPosition = songs.indexOf(currentSong)
 
-            // If the MediaPlayer already exists, stops it and releases it
-            if (::music.isInitialized && music.isPlaying) {
-                music.stop()
-                handler.removeCallbacks(updateSeekBarRunnable)
-                music.release()
-            }
-            // Creates a new MediaPlayer with the selected song and starts playing it
-            if (currentSong != null) {
-                music = MediaPlayer.create(this@MainActivity, Uri.parse(currentSong!!.path))
+            // If we're skipping backward and passed the first 5 seconds of the song
+            if (!forward && music.currentPosition.toLong() > 5000L) {
+                // Play the current song from the beginning
+                music.seekTo(0)
                 music.start()
-                handler.post(updateSeekBarRunnable)
-            } else {
-                music = MediaPlayer()
-            }
 
-            // Sets the pause button to the Play/Pause button
-            fab?.setImageResource(R.drawable.ic_action_pause)
+            } else {
+                // If we're on the first song and skipping backward
+                currentSong = if (currentPosition == 0 && !forward) {
+                    songs[songs.size -1] // currentSong is the last song in the list
+
+                // If we're on the last song and skipping forward
+                } else if (currentPosition == songs.size -1 && forward) {
+                    if (fab == null && repeatState == 0) {
+                        lastSongEndNoRepeat = true
+                        music.stop()
+                        handler.removeCallbacks(updateSeekBarRunnable)
+                        currentSong
+                    } else {
+                        songs[0] // currentSong is the first song in the list
+                    }
+                // If not just skip
+                } else {
+                    if (forward) {
+                        songs[currentPosition +1]
+                    } else {
+                        songs[currentPosition -1]
+                    }
+                }
+                // If the MediaPlayer already exists, stops it and releases it
+                if (::music.isInitialized && music.isPlaying) {
+                    music.stop()
+                    handler.removeCallbacks(updateSeekBarRunnable)
+                    music.release()
+                }
+
+                // Creates a new MediaPlayer with the selected song and starts playing it
+                music = MediaPlayer.create(this@MainActivity, Uri.parse(currentSong!!.path))
+                music.seekTo(0)
+                val playerFragment = supportFragmentManager.findFragmentById(R.id.mainContView) as PlayerFragment
+                playerFragment.updateFragment()
+
+                if (lastSongEndNoRepeat) {
+                    // Sets the play icon to the Play/Pause button
+                    fab?.setImageResource(R.drawable.ic_action_play)
+                } else {
+                    music.start()
+                    handler.post(updateSeekBarRunnable)
+                    // Sets the pause icon to the Play/Pause button
+                    fab?.setImageResource(R.drawable.ic_action_pause)
+                }
+            }
         }
     }
 
@@ -399,6 +473,16 @@ class MainActivity : AppCompatActivity(),
             }
         }
     }
+
+    override fun onShuffle() {
+        shuffleOn = !shuffleOn
+        if (shuffleOn) {
+            originalSongs = songs.toMutableList()
+            songs.shuffle()
+        } else {
+            songs = originalSongs.toMutableList()
+        }
+    }
     //
 
     // Songs
@@ -430,6 +514,10 @@ class MainActivity : AppCompatActivity(),
         lifecycleScope.launch(Dispatchers.IO) {
 
             selectedPlaylist = db.PlaylistDAO().findById(p.id)!!
+            with(prefs.edit()) {
+                putLong(LAST_PLAYLIST_KEY, p.id)
+                apply()
+            }
 
             withContext(Dispatchers.Main) {
                 supportFragmentManager.commit {

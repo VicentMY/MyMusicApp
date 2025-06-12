@@ -21,14 +21,9 @@ import es.vmy.musicapp.dialogs.TrackInfoDialog
 import es.vmy.musicapp.utils.LISTENER_EX_MSG
 
 class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHolder.SongsAdapterListener {
-
-    private var _binding: FragmentPlayerBinding? = null
-    private val binding get() = _binding!!
-
+    private lateinit var binding: FragmentPlayerBinding
     private lateinit var mAdapter: SongsAdapter
-    private var mListener: PlayerFragmentListener? = null
-
-//    private val db by lazy { AppDB.getInstance(requireContext()) }
+    private lateinit var mListener: PlayerFragmentListener
 
     private lateinit var mainActivity: MainActivity
     private lateinit var music: MediaPlayer
@@ -37,9 +32,6 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
 
     private var songListShown: Boolean = false
 
-    // FIXME: Retrieve these from MediaPlayer
-    private var shuffleOn: Boolean = false
-    private var repeatState: Int = 0
 
     fun updateSeekBarAndTimers(progress: Int, currentTime: String, totalTime: String) {
         binding.seekBar.progress = progress
@@ -62,7 +54,7 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        binding = FragmentPlayerBinding.inflate(inflater, container, false)
 
         binding.btnPlay.setOnClickListener(this)
         binding.btnSkipPrev.setOnClickListener(this)
@@ -83,7 +75,7 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
                 // Obligatory to implement, not used
             }
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                mListener?.onSeekBarChange(seekBar!!.progress)
+                mListener.onSeekBarChange(seekBar!!.progress)
             }
         })
 
@@ -100,30 +92,15 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
         currentSong = mainActivity.getCurrentSong()
 
         updateFragment()
-
-        if (music.isPlaying) {
-            binding.btnPlay.setImageIcon(Icon.createWithResource(requireContext(), R.drawable.ic_action_pause))
-        } else {
-            binding.btnPlay.setImageIcon(Icon.createWithResource(requireContext(), R.drawable.ic_action_play))
-        }
-
-        if (currentSong != null && currentSong!!.favorite) {
-            binding.btnFavorite.setImageResource(R.drawable.ic_action_favorite_on)
-        } else {
-            binding.btnFavorite.setImageResource(R.drawable.ic_action_favorite)
-        }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        mListener = null
-    }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        _binding = null
-        playingSongList.forEach {
-            it.isSelected = false
+        if (::playingSongList.isInitialized) {
+            playingSongList.forEach {
+                it.isSelected = false
+            }
         }
     }
 
@@ -133,18 +110,20 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
         fun onSeekBarChange(progress: Int)
         fun onFavoriteSong(favoriteBtn: ImageView, song: Song)
         fun onSongSelected(song: Song, songList: MutableList<Song>)
+        fun onShuffle()
     }
 
     override fun onClick(v: View) {
+        currentSong = mainActivity.getCurrentSong()
         when (v.id) {
             R.id.btn_play -> {
-                mListener?.playPause(binding.btnPlay)
+                mListener.playPause(binding.btnPlay)
             }
             R.id.btn_skip_prev -> {
-                mListener?.skipPrevNext(false, binding.btnPlay)
+                mListener.skipPrevNext(false, binding.btnPlay)
             }
             R.id.btn_skip_next -> {
-                mListener?.skipPrevNext(true, binding.btnPlay)
+                mListener.skipPrevNext(true, binding.btnPlay)
             }
             R.id.btn_show_playlist -> {
                 showHidePlaylist()
@@ -157,27 +136,23 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
             }
             R.id.btn_favorite -> {
                 if (currentSong != null) {
-                    mListener?.onFavoriteSong(binding.btnFavorite, currentSong!!)
+                    mListener.onFavoriteSong(binding.btnFavorite, currentSong!!)
                 }
             }
             R.id.btn_shuffle -> {
-                // TODO: SHUFFLE FUNCTION
-                val shuffleBtn = binding.btnShuffle
-                shuffleOn = !shuffleOn
-
-                if (shuffleOn) {
-                    shuffleBtn.setImageResource(R.drawable.ic_action_shuffle_on)
-                } else {
-                    shuffleBtn.setImageResource(R.drawable.ic_action_shuffle)
-                }
+                // SHUFFLE FUNCTION
+                mListener.onShuffle()
+                playingSongList = mainActivity.getSongs()
+                setUpRecycler()
             }
             R.id.btn_repeat -> {
-                // TODO: REPEAT FUNCTION
+                // REPEAT FUNCTION
                 //  repeatState:
                 //  0 -> off
                 //  1 -> repeat playlist
                 //  2 -> repeat song
                 val repeatBtn = binding.btnRepeat
+                var repeatState = mainActivity.getRepeatState()
 
                 when (repeatState) {
                     0 -> {
@@ -193,6 +168,7 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
                         repeatBtn.setImageResource(R.drawable.ic_action_repeat)
                     }
                 }
+                mainActivity.setRepeatState(repeatState)
             }
         }
         updateFragment()
@@ -200,6 +176,7 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
 
     fun updateFragment() {
         val song = mainActivity.getCurrentSong()
+        val player = mainActivity.getMusic()
 
         if (song != null) {
             binding.tvSongTitle.text = song.title
@@ -211,10 +188,38 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
                 binding.ivSongThumbnail.setImageResource(R.drawable.ic_action_song)
             }
 
+            if (player.isPlaying) {
+                binding.btnPlay.setImageIcon(Icon.createWithResource(requireContext(), R.drawable.ic_action_pause))
+            } else {
+                binding.btnPlay.setImageIcon(Icon.createWithResource(requireContext(), R.drawable.ic_action_play))
+            }
+
+            if (mainActivity.getShuffleState()) {
+                binding.btnShuffle.setImageResource(R.drawable.ic_action_shuffle_on)
+            } else {
+                binding.btnShuffle.setImageResource(R.drawable.ic_action_shuffle)
+            }
+
             if (song.favorite) {
                 binding.btnFavorite.setImageResource(R.drawable.ic_action_favorite_on)
             } else {
                 binding.btnFavorite.setImageResource(R.drawable.ic_action_favorite)
+            }
+
+            when (mainActivity.getRepeatState()) {
+                0 -> {
+                    binding.btnRepeat.setImageResource(R.drawable.ic_action_repeat)
+                }
+                1 -> {
+                    binding.btnRepeat.setImageResource(R.drawable.ic_action_repeat_on)
+                }
+                2 -> {
+                    binding.btnRepeat.setImageResource(R.drawable.ic_action_repeat_one_on)
+                }
+            }
+
+            if (::mAdapter.isInitialized) {
+                mAdapter.notifyDataSetChanged()
             }
         }
     }
@@ -232,6 +237,7 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
                 setUpRecycler()
                 songListShown = true
             }
+
         }
     }
 
@@ -247,18 +253,15 @@ class PlayerFragment : Fragment(), View.OnClickListener, SongsAdapter.SongViewHo
     }
 
     override fun onSongClick(s: Song) {
-        mListener?.onSongSelected(s, playingSongList)
+        mListener.onSongSelected(s, playingSongList)
     }
 
-    override fun onSongLongClick(position: Int) {
+    override fun onSongLongClick(position: Int, song: Song) {
         // Not used
     }
 
     override fun onFavoriteSong(favoriteBtn: ImageView, song: Song) {
-        mListener?.onFavoriteSong(favoriteBtn, song)
-        if (::mAdapter.isInitialized) {
-            mAdapter.notifyDataSetChanged()
-        }
+        mListener.onFavoriteSong(favoriteBtn, song)
         updateFragment()
     }
 }

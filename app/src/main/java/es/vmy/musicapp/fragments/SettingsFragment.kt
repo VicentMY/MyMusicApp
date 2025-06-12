@@ -1,11 +1,13 @@
 package es.vmy.musicapp.fragments
 
 import android.content.Context.MODE_PRIVATE
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import es.vmy.musicapp.R
+import es.vmy.musicapp.activities.SplashActivity
 import es.vmy.musicapp.dialogs.OfflineModeDialog
 import es.vmy.musicapp.utils.AuthManager
 import es.vmy.musicapp.utils.CHAT_COLOR_OTHER_KEY
@@ -14,6 +16,7 @@ import es.vmy.musicapp.utils.CHAT_LOGOUT_KEY
 import es.vmy.musicapp.utils.CHAT_USERNAME_KEY
 import es.vmy.musicapp.utils.OFFLINE_MODE_KEY
 import es.vmy.musicapp.utils.PREFERENCES_FILE
+import es.vmy.musicapp.utils.RELOAD_MUSIC_KEY
 import es.vmy.musicapp.utils.USER_EMAIL_KEY
 
 class SettingsFragment : PreferenceFragmentCompat() {
@@ -73,7 +76,18 @@ class SettingsFragment : PreferenceFragmentCompat() {
                     apply()
                 }
             }
+            true
+        }
 
+        val reloadMusicPreference: Preference? = findPreference(RELOAD_MUSIC_KEY)
+
+        reloadMusicPreference?.setOnPreferenceClickListener {
+            val reloadMusic = prefs.getBoolean(RELOAD_MUSIC_KEY, false)
+            if (reloadMusic) {
+                Toast.makeText(requireActivity(), getString(R.string.reloading_music), Toast.LENGTH_SHORT).show()
+                startActivity(Intent(requireActivity(), SplashActivity::class.java))
+                requireActivity().finish()
+            }
             true
         }
     }

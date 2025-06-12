@@ -123,7 +123,7 @@ class AddSongPlaylistFragment : Fragment(),
         mAdapter.notifyDataSetChanged()
     }
 
-    override fun onSongLongClick(position: Int) {
+    override fun onSongLongClick(position: Int, song: Song) {
         // Not used
     }
 

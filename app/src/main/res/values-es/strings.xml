@@ -68,7 +68,8 @@
     <string name="playlist_name_field">Nombre de playlist</string>
     <string name="playlist_created">¡Playlist creada!</string>
     <string name="dialog_delete_playlist_title">Eliminar Playlist</string>
-    <string name="dialog_delete_playlist_message">¿Seguro/a que quieres eliminar esta playlist? Una vez eliminada no se puede recuperar.</string>
+    <string name="dialog_delete_playlist_message_1">¿Seguro/a que quieres eliminar</string>
+    <string name="dialog_delete_playlist_message_2">Una vez eliminada no se puede recuperar.</string>
     <string name="playlist_deleted_correctly">Playlist eliminada correctamente</string>
     <string name="err_removing_playlist">Error al eliminar playlist</string>
     <string name="dialog_create">Crear</string>
@@ -100,4 +101,5 @@
     <string name="cannot_delete_fav_playlist">No puedes quitar la playlist de favoritas</string>
     <string name="cannot_man_add_fav_songs">Solo puedes añadir canciones a través del reproductor</string>
     <string name="no_songs">No se han encontrado canciones</string>
+    <string name="dialog_rename_playlist_title">Renombrar playlist</string>
 </resources>
